@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.productDisplayName }}</title>
+    <!-- Liens vers Font Awesome pour l'icône de panier -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Styles généraux */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #000;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #fff;
+            transition: color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #ccc;
+        }
+
+        /* Conteneur principal */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Image du produit */
+        .product-image img {
+            width: 100%;
+            height: auto;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        /* Informations du produit */
+        .product-info h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #222;
+        }
+        a {
+            text-decoration: none; /* Supprime le soulignement */
+            color: inherit; /* Hérite de la couleur parent (évite le bleu par défaut) */
+        }
+
+        .product-info ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+
+        .product-info li {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            color: #e67e22;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .buy-btn {
+            background-color: #000;
+            color: #fff;
+            font-size: 1rem;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .buy-btn:hover {
+            background-color: #333;
+        }
+
+        /* Produits similaires */
+        .similar-products {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .similar-products h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .carousel {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding: 0 1rem;
+        }
+
+        .product-card {
+            flex: 0 0 auto;
+            width: 220px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+        }
+
+        .product-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-card p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1>Ma Boutique</h1>
+        <ul>
+            <li><a href="#">Accueil</a></li>
+            <li><a href="#">Produits</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+    </div>
+
+    <!-- Conteneur principal -->
+    <div class="container">
+        <!-- Image du produit -->
+        <div class="product-image">
+            <img src="{{ url_for('static', filename='data/images/' + product.image) }}" 
+                 alt="{{ product.productDisplayName }}">
+        </div>
+
+        <!-- Informations du produit -->
+        <div class="product-info">
+            <h1>{{ product.productDisplayName }}</h1>
+            <ul>
+                <li><strong>Catégorie :</strong> {{ product.articleType }}</li>
+                <li><strong>Couleur :</strong> {{ product.baseColour }}</li>
+                <li><strong>Genre :</strong> {{ product.gender }}</li>
+                <li><strong>Saison :</strong> {{ product.season }}</li>
+                <li><strong>Prix :</strong> <span class="price">{{ product.price }} €</span></li>
+                <p style=" color: #f39c12; font-weight: bold;">Évaluation : {{ product.rating }} ⭐</p>
+            </ul>
+            <button class="buy-btn">
+                <i class="fas fa-shopping-cart"></i> J'ACHÈTE
+            </button>
+        </div>
+    </div>
+
+    <!-- Produits Similaires -->
+    <div class="similar-products">
+        <h2>Produits Similaires</h2>
+        <div class="carousel">
+            {% for similar_product in similar_products %}
+            <!-- Lien dynamique pour le produit similaire -->
+            <a href="{{ url_for('product_details', product_name=similar_product.productDisplayName|replace(' ', '%20')) }}" class="product-card" data-name="{{ similar_product.productDisplayName }}">
+                <img src="{{ url_for('static', filename='data/images/' + similar_product.image) }}" 
+                     alt="{{ similar_product.productDisplayName }}">
+                <h3>{{ similar_product.productDisplayName }}</h3>
+                <p>Catégorie : {{ similar_product.articleType }}</p>
+                <p>id : {{ similar_product.id }}</p>
+                <p>Prix : {{ similar_product.price }}</p>
+                <p>Couleur : {{ similar_product.baseColour }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour charger les produits similaires via AJAX
+        function loadSimilarProducts(productName) {
+            fetch(`/product_json/${productName}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        const similarProductsContainer = document.querySelector('.carousel');
+                        similarProductsContainer.innerHTML = '';  // Clear existing products
+
+                        data.similar_products.forEach(product => {
+                            const productCard = document.createElement('a');
+                            productCard.classList.add('product-card');
+                            productCard.href = `/product_details/${product.productDisplayName.replace(' ', '%20')}`;
+
+                            const productImage = document.createElement('img');
+                            productImage.src = `/static/data/images/${product.image}`;
+                            productImage.alt = product.productDisplayName;
+
+                            const productTitle = document.createElement('h3');
+                            productTitle.textContent = product.productDisplayName;
+
+                            const productPrice = document.createElement('p');
+                            productPrice.textContent = `Prix : ${product.price} €`;
+
+                            productCard.appendChild(productImage);
+                            productCard.appendChild(productTitle);
+                            productCard.appendChild(productPrice);
+
+                            similarProductsContainer.appendChild(productCard);
+                        });
+                    }
+                })
+                .catch(error => console.error('Erreur de chargement des produits similaires:', error));
+        }
+
+        // Charge les produits similaires lors du clic sur un produit similaire
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', (event) => {
+                const productName = event.currentTarget.getAttribute('data-name');
+                loadSimilarProducts(productName);
+            });
+        });
+    </script>
+</body>
+</html>

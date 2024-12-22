@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produits Populaires</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #030f04;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .product-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: calc(25% - 20px);
+            text-align: center;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: auto;
+        }
+
+        .product-details {
+            padding: 15px;
+        }
+
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .product-price {
+            color: #4CAF50;
+            font-size: 1.2rem;
+            margin: 5px 0;
+        }
+
+        .rating {
+            color: #f4b400;
+            margin: 5px 0;
+        }
+
+        .no-products {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        Produits Populaires Recommandés
+    </div>
+
+    <div class="container">
+        {% if products %}
+            {% for product in products %}
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='data/images/' + product['id']|string + '.jpg') }}" alt="Image du produit">
+                <div class="product-details">
+                    <div class="product-title">{{ product['productDisplayName'] }}</div>
+                    <div class="product-price">${{ product['price'] }}</div>
+                    <div class="rating">⭐ {{ product['rating'] }} ({{ product['num_ratings'] }} avis)</div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-products">Aucun produit trouvé pour vos préférences.</div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produits</title>
+    <style>
+        /* Styles CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        /* Navbar */
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            margin: 0;
+            margin-left: 20px;
+        }
+
+        .search-navbar {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+
+        .search-navbar input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+        }
+
+        .search-navbar button {
+            padding: 8px 12px;
+            background-color: #555;
+            color: white;
+            border: 1px solid #555;
+            border-left: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+
+        .search-navbar button:hover {
+            background-color: #777;
+        }
+
+        /* Conteneur principal */
+        .container {
+            display: flex;
+            margin: 20px;
+        }
+
+        /* Barre de filtres */
+        .filters {
+            width: 20%;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters h2 {
+            margin-top: 0;
+        }
+
+        .filters form label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        .filters select, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        /* Produits */
+        .products {
+            width: 80%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .product {
+            width: 30%;
+            margin: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            text-align: center;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+
+        .product img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .product h3 {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .product p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .product .rating {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Pagination */
+        .pagination {
+            text-align: center;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pagination a {
+            text-decoration: none;
+            padding: 10px 15px;
+            margin: 0 5px;
+            background-color: #333;
+            color: white;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .pagination a:hover {
+            background-color: #555;
+        }
+
+        .pagination span {
+            font-size: 16px;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar avec zone de recherche -->
+    <header>
+        <h1>Nos Produits</h1>
+        <div class="search-navbar">
+            <input type="text" placeholder="Rechercher par nom..." name="searchName">
+            <button type="submit">Rechercher</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Barre de filtres -->
+        <div class="filters">
+            <h2>Filtres</h2>
+            <form method="GET" action="{{ url_for('products') }}">
+                <label>Genre :</label>
+                <select name="gender">
+                    <option value="">Tous</option>
+                    <option value="Men" {% if filters.gender == 'Men' %}selected{% endif %}>Homme</option>
+                    <option value="Women" {% if filters.gender == 'Women' %}selected{% endif %}>Femme</option>
+                </select>
+
+                <label>Catégorie principale :</label>
+                <select name="masterCategory">
+                    <option value="">Toutes</option>
+                    <option value="Apparel" {% if filters.masterCategory == 'Apparel' %}selected{% endif %}>Vêtements</option>
+                    <option value="Accessories" {% if filters.masterCategory == 'Accessories' %}selected{% endif %}>Accessoires</option>
+                    <option value="Footwear" {% if filters.masterCategory == 'Footwear' %}selected{% endif %}>Chaussures</option>
+                </select>
+
+                <label>Sous-Catégorie :</label>
+                <select name="subCategory">
+                    <option value="">Toutes</option>
+                    <option value="Topwear" {% if filters.subCategory == 'Topwear' %}selected{% endif %}>Hauts</option>
+                    <option value="Bottomwear" {% if filters.subCategory == 'Bottomwear' %}selected{% endif %}>Bas</option>
+                    <option value="Watches" {% if filters.subCategory == 'Watches' %}selected{% endif %}>Montres</option>
+                </select>
+
+                <label>Type d'Article :</label>
+                <select name="articleType">
+                    <option value="">Tous</option>
+                    <option value="Shirts" {% if filters.articleType == 'Shirts' %}selected{% endif %}>Chemises</option>
+                    <option value="Jeans" {% if filters.articleType == 'Jeans' %}selected{% endif %}>Jeans</option>
+                    <option value="Track Pants" {% if filters.articleType == 'Track Pants' %}selected{% endif %}>Pantalons de sport</option>
+                    <option value="Watches" {% if filters.articleType == 'Watches' %}selected{% endif %}>Montres</option>
+                </select>
+
+                <label>Couleur :</label>
+                <select name="baseColour">
+                    <option value="">Toutes</option>
+                    <option value="Black" {% if filters.baseColour == 'Black' %}selected{% endif %}>Noir</option>
+                    <option value="White" {% if filters.baseColour == 'White' %}selected{% endif %}>Blanc</option>
+                    <option value="Blue" {% if filters.baseColour == 'Blue' %}selected{% endif %}>Bleu</option>
+                    <option value="Navy Blue" {% if filters.baseColour == 'Navy Blue' %}selected{% endif %}>Bleu Marine</option>
+                    <option value="Silver" {% if filters.baseColour == 'Silver' %}selected{% endif %}>Argent</option>
+                </select>
+
+                <label>Saison :</label>
+                <select name="season">
+                    <option value="">Toutes</option>
+                    <option value="Summer" {% if filters.season == 'Summer' %}selected{% endif %}>Été</option>
+                    <option value="Fall" {% if filters.season == 'Fall' %}selected{% endif %}>Automne</option>
+                    <option value="Winter" {% if filters.season == 'Winter' %}selected{% endif %}>Hiver</option>
+                </select>
+
+                <label>Année :</label>
+                <select name="year">
+                    <option value="">Toutes</option>
+                    {% for year in range(2011, 2025) %}
+                    <option value="{{ year }}" {% if filters.year and filters.year == str(year) %}selected{% endif %}>{{ year }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Usage :</label>
+                <select name="usage">
+                    <option value="">Tous</option>
+                    <option value="Casual" {% if filters.usage == 'Casual' %}selected{% endif %}>Décontracté</option>
+                    <option value="Party" {% if filters.usage == 'Party' %}selected{% endif %}>Soirée</option>
+                    <option value="Sports" {% if filters.usage == 'Sports' %}selected{% endif %}>Sport</option>
+                </select>
+
+                <button type="submit">Appliquer</button>
+            </form>
+        </div>
+
+        <!-- Liste des produits -->
+        <div class="products">
+            {% for product in products %}
+            <div class="product">
+                <a href="{{ url_for('product_details', product_name=product.productDisplayName) }}">
+                    <img src="{{ url_for('static', filename='data/images/' + product.image) }}" alt="{{ product.productDisplayName }}">
+                    <h3>{{ product.productDisplayName }}</h3>
+                    <p>ID : {{ product.global_id }}</p> <!-- Affiche l'ID global -->
+                    <p>{{ product.articleType }}</p>
+                    <p>{{ product.baseColour }}</p>
+                    <p>Prix : {{ product.price }} €</p>
+                    <p class="rating">Évaluation : {{ product.rating }} ⭐</p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if page > 1 %}
+            <a href="{{ url_for('products', page=page-1) }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">
+                &laquo; Page précédente
+            </a>
+            {% endif %}
+
+            <span>Page {{ page }} sur {{ total_pages }}</span>
+
+            {% if page < total_pages %}
+            <a href="{{ url_for('products', page=page+1) }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">
+                Page suivante &raquo;
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

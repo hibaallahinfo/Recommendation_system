@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de Bord</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Styles CSS de base inspirés de votre image */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        header {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav a {
+            color: #fff;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        .hero-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fafafa;
+            padding: 50px;
+        }
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+        .hero-content p {
+            color: #555;
+        }
+        .hero-content button {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .hero-image img {
+            width: 700px;
+            height: 390px;
+            border-radius: 10px;
+        }
+        footer {
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>Male & Women Fashion</h1>
+        </div>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Shop</a>
+            <a href="#">tendance</a>
+            <a href="#">recommandations pérsonalisés</a>
+        </nav>
+    </header>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <p>New COLLECTION</p>
+            <h1>Fall - All Collections 2024-2025</h1>
+            <p>Une sélection exceptionnelle de vêtements de luxe.</p>
+            <a href="{{ url_for('products') }}" class="shop-now-button">
+                <button>Shop Now</button>
+            </a>
+        </div>
+        <div class="hero-image">
+            <img src="{{ url_for('static', filename='hero-image.png') }}" alt="Mode Homme">
+        </div>
+    </section>
+
+    <footer>
+        <p>Free shipping, 30-day return & refund guarantee.</p>
+    </footer>
+</body>
+</html>

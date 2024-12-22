@@ -1,0 +1,3 @@
+fullname,dob,sex,nationality,password
+hiba,2002-12-13,Femme,hibaallah@gmail.com,scrypt:32768:8:1$QesCNffMbVgdZ8vK$e8bc73bb51016133532afab20b553984a407756645df3766122548692684f09c925c696a393d545c56560f37ef1028771f250e363f50a4f736504780000fbb48
+salma,2002-12-12,Female,salma@gmail.com,123456

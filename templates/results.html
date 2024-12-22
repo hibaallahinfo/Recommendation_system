@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Résultats des Recommandations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Produits Recommandés</h1>
+    <div class="products">
+        {% for _, row in products.iterrows() %}
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='images/' + row['image']) }}" alt="Product Image" width="150">
+                <p>{{ row['productDisplayName'] }}</p>
+                <p>Popularité : {{ row['popularity_score'] }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    <a href="/">Retour</a>
+</body>
+</html>

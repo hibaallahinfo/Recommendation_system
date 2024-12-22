@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Préférences Utilisateur</title>
+    <style>
+        /* Styles généraux de la page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+
+        /* Titre */
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        /* Étapes */
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        /* Sélecteurs et autres éléments de formulaire */
+        select,
+        input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .product {
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        
+        .product img {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Sélectionner vos préférences</h2>
+    
+    <div class="step active" id="step-1">
+        <h3>1. Choisir la catégorie</h3>
+        <select id="category">
+            <option value="Apparel">Apparel</option>
+            <option value="Accessories">Accessories</option>
+            <option value="Footwear">Footwear</option>
+            <option value="Personal Care">Personal Care</option>
+        </select>
+        <button class="next" onclick="nextStep(1)">Suivant</button>
+    </div>
+
+    <div class="step" id="step-2">
+        <h3>2. Choisir la sous-catégorie</h3>
+        <select id="subCategory">
+            <option value="Shirts">Shirts</option>
+            <option value="Tshirts">Tshirts</option>
+            <option value="Jeans">Jeans</option>
+            <option value="Belts">Belts</option>
+        </select>
+        <button class="next" onclick="nextStep(2)">Suivant</button>
+    </div>
+
+    <div class="step" id="step-3">
+        <h3>3. Choisir la couleur</h3>
+        <select id="baseColour">
+            <option value="Blue">Blue</option>
+            <option value="Black">Black</option>
+            <option value="Grey">Grey</option>
+            <option value="Green">Green</option>
+        </select>
+        <button class="next" onclick="nextStep(3)">Suivant</button>
+    </div>
+
+    <div class="step" id="step-4">
+        <h3>4. Choisir le prix (en USD)</h3>
+        <input type="range" id="price" min="0" max="500" step="10">
+        <p>Prix: $<span id="priceValue">250</span></p>
+        <button class="next" onclick="nextStep(4)">Suivant</button>
+    </div>
+
+    <div class="step" id="step-5">
+        <h3>5. Choisir la saison</h3>
+        <select id="season">
+            <option value="Summer">Summer</option>
+            <option value="Fall">Fall</option>
+            <option value="Winter">Winter</option>
+            <option value="Spring">Spring</option>
+        </select>
+        <button class="next" onclick="nextStep(5)">Suivant</button>
+    </div>
+
+    <div class="step" id="step-6">
+        <h3>Produits Populaires</h3>
+        <button onclick="showPopularProducts()">Voir les produits</button>
+    </div>
+</div>
+
+<script>
+// Fonction pour passer à l'étape suivante
+function nextStep(step) {
+    // Récupérer les valeurs des sélections
+    const category = document.getElementById('category').value;
+    const subCategory = document.getElementById('subCategory').value;
+    const baseColour = document.getElementById('baseColour').value;
+    const price = document.getElementById('price').value;
+    const season = document.getElementById('season').value;
+
+    // Masquer l'étape actuelle et afficher l'étape suivante
+    document.getElementById('step-' + step).classList.remove('active');
+    if (step < 6) {
+        document.getElementById('step-' + (step + 1)).classList.add('active');
+    } else {
+        // Lorsque toutes les étapes sont terminées, afficher les produits
+        showPopularProducts(category, subCategory, baseColour, price, season);
+    }
+}
+
+// Mettre à jour le texte du prix en fonction de la valeur du curseur
+document.getElementById('price').addEventListener('input', function() {
+    document.getElementById('priceValue').textContent = this.value;
+});
+
+// Fonction pour afficher les produits populaires en fonction des critères
+function showPopularProducts() {
+    const category = localStorage.getItem('category');
+    const subCategory = localStorage.getItem('subCategory');
+    const baseColour = localStorage.getItem('baseColour');
+    const price = localStorage.getItem('price');
+    const season = localStorage.getItem('season');
+
+    // Construire l'URL avec les paramètres
+    const url = `/popular?category=${category}&subCategory=${subCategory}&baseColour=${baseColour}&price=${price}&season=${season}`;
+    window.location.href = url;
+}
+
+
+</script>
+
+</body>
+</html>
