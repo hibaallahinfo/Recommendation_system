@@ -34,9 +34,6 @@ def load_image(img, resized_fac=1):
     w, h, _ = img.shape
     return cv2.resize(img, (int(h * resized_fac), int(w * resized_fac)), interpolation=cv2.INTER_CUBIC)
 
-
-
-
 # Image embeddings with pre-trained ResNet50
 img_width, img_height = 224, 224
 base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(img_width, img_height, 3))
@@ -151,4 +148,4 @@ attention_weights = compute_attention(graph, df_embs.values)
 
 # Propager les informations dans le graphe
 updated_embeddings = propagate_information(graph, df_embs.values, attention_weights, num_iterations=4)
-np.save("static/data/updated_embeddings.npy", updated_embeddings)
+#np.save("static/data/updated_embeddings.npy", updated_embeddings)
