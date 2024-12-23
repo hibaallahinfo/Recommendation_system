@@ -4,7 +4,7 @@ from passlib.context import CryptContext
 import pandas as pd
 import numpy as np
 import bcrypt
-from recommender import find_top_similar_items, get_embedding, img_path, model  # Import des fonctions
+from recommender import find_enhanced_similar_items, build_enhanced_graph ,compute_enhanced_attention ,propagate_enhanced_information , img_path, model  # Import des fonctions
 from popularity_recommender import PopularityRecommender
 from datetime import datetime
 
@@ -124,22 +124,45 @@ def products():
 
 @app.route('/product_details/<string:product_name>', methods=['GET'])
 def product_details(product_name):
-    # Convertir les espaces encodés (%20) en espaces, mais garder les tirets
     formatted_product_name = product_name.replace('%20', ' ').title()
-    
-    # Recherche du produit dans le DataFrame
     product_row = df[df['productDisplayName'].str.lower() == formatted_product_name.lower()]
     
     if product_row.empty:
         return jsonify({"error": "Produit non trouvé"}), 404
     
     product_index = product_row.index[0]
-    target_embedding = embeddings[product_index].reshape(1, -1)
-    similar_indices, _ = find_top_similar_items(product_index, embeddings, top_n=10)
-
-    product = product_row.iloc[0].to_dict()
+    embeddings = np.load(EMBEDDINGS_FILE)
+    
+    # Construire le graphe avec les embeddings
+    graph, similarities = build_enhanced_graph(embeddings, min_threshold=0.90, max_neighbors=10)
+    
+    # Afficher les similarités
+    print("Similarités globales pour le produit {} :".format(formatted_product_name), similarities[product_index])
+    
+    # Calculer les poids d'attention
+    attention_weights = compute_enhanced_attention(graph, embeddings, similarities, temperature=0.5)
+    
+    # Propagation des informations dans le graphe
+    updated_embeddings = propagate_enhanced_information(graph, embeddings, attention_weights, num_iterations=3, decay_factor=0.9)
+    
+    # Recherche des indices similaires avec le graphe amélioré
+    similar_indices, weights = find_enhanced_similar_items(
+        product_index, updated_embeddings, similarities, 
+        top_n=10, 
+        similarity_threshold=0.4  # Réduire le seuil à 0.5 pour tester
+    )
+    
+    # Logs pour le débogage
+    print("Indices similaires : ", similar_indices)
+    print("Poids des similarités : ", weights)
+    
+    # Récupération des produits similaires
     similar_products = df.iloc[similar_indices].to_dict(orient='records')
-
+    print("Produits similaires : ", similar_products)
+    
+    # Retourner la page avec les produits similaires
+    product = product_row.iloc[0].to_dict()
+    
     return render_template('product_details.html', product=product, similar_products=similar_products)
 
 
@@ -236,43 +259,60 @@ def product_json_by_name(product_name):
 
 #print("Taille des embeddings:", embeddings.shape)
 
-# Route pour les produits populaires avec filtres
 @app.route('/popular', methods=['GET'])
 def popular_products():
     """
     Route pour afficher les produits populaires avec filtres optionnels.
     """
-    # Récupérer les paramètres de filtres via la requête GET
-    gender = request.args.get('gender')  # Filtre par genre
-    category = request.args.get('masterCategory')  # Filtre par catégorie principale
-    sub_category = request.args.get('subCategory')  # Filtre par sous-catégorie
-    color = request.args.get('baseColour')  # Filtre par couleur
-    n = request.args.get('n', default=30, type=int)  # Nombre de produits à afficher
+    try:
+        # Récupérer les paramètres de filtres via la requête GET
+        gender = request.args.get('gender')  # Filtre par genre
+        category = request.args.get('masterCategory')  # Filtre par catégorie principale
+        sub_category = request.args.get('subCategory')  # Filtre par sous-catégorie
+        color = request.args.get('baseColour')  # Filtre par couleur
+        n = request.args.get('n', default=30, type=int)  # Nombre de produits à afficher
 
-    # Initialiser le système de recommandation basé sur la popularité
-    recommender = PopularityRecommender(df)
+        # Vérifier que le DataFrame est valide
+        if df.empty:
+            flash("Les données des produits sont indisponibles.", "danger")
+            return render_template('popular_products.html', products=[], gender=gender, category=category, sub_category=sub_category, color=color)
 
-    # Obtenir les produits populaires en appliquant les filtres
-    top_products = recommender.get_top_products(
-        gender=gender, 
-        category=category, 
-        sub_category=sub_category, 
-        color=color, 
-        n=n
-    )
+        # Initialiser le système de recommandation basé sur la popularité
+        recommender = PopularityRecommender(df)
 
-    # Convertir en dictionnaire pour l'affichage dans le template
-    products = top_products.to_dict(orient='records')
+        # Obtenir les produits populaires en appliquant les filtres
+        top_products = recommender.get_top_products(
+            gender=gender,
+            category=category,
+            sub_category=sub_category,
+            color=color,
+            n=n
+        )
 
-    # Retourner les résultats à la page HTML
-    return render_template(
-        'popular_products.html', 
-        products=products, 
-        gender=gender, 
-        category=category, 
-        sub_category=sub_category, 
-        color=color
-    )
+        # Convertir les résultats en dictionnaire pour l'affichage dans le template
+        products = top_products.to_dict(orient='records')
+
+        # Retourner les résultats à la page HTML
+        return render_template(
+            'popular_products.html',
+            products=products,
+            gender=gender,
+            category=category,
+            sub_category=sub_category,
+            color=color
+        )
+
+    except Exception as e:
+        # Gérer les erreurs inattendues
+        flash(f"Une erreur est survenue : {str(e)}", "danger")
+        return render_template(
+            'popular_products.html', 
+            products=[], 
+            gender=gender, 
+            category=category, 
+            sub_category=sub_category, 
+            color=color
+        )
 
 # Correspondance des mois avec les saisons
 SEASON_MAPPING = {

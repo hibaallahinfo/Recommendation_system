@@ -82,7 +82,8 @@
 
         .product-card img {
             width: 100%;
-            height: auto;
+            height: 200px;
+            object-fit: cover;
         }
 
         .product-details {
@@ -111,6 +112,11 @@
             font-size: 1.2rem;
             margin-top: 50px;
         }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
     </style>
 </head>
 <body>
@@ -135,7 +141,7 @@
         </select>
 
         <label for="color">Couleur :</label>
-        <input type="text" id="color" name="baseColour" value="{{ color }}" placeholder="Ex : Red">
+        <input type="text" id="color" name="baseColour" value="{{ color }}" placeholder="Ex : Rouge">
 
         <label for="n">Nombre de produits :</label>
         <input type="number" id="n" name="n" value="{{ n }}" min="1" max="100">
@@ -147,12 +153,15 @@
         {% if products %}
             {% for product in products %}
             <div class="product-card">
-                <img src="{{ url_for('static', filename='data/images/' + product['id']|string + '.jpg') }}" alt="Image du produit">
-                <div class="product-details">
-                    <div class="product-title">{{ product['productDisplayName'] }}</div>
-                    <div class="product-price">${{ product['price'] }}</div>
-                    <div class="rating">⭐ {{ product['rating'] }} ({{ product['num_ratings'] }} avis)</div>
-                </div>
+                <a href="{{ url_for('product_details', product_name=product['productDisplayName']) }}">
+                    <img src="{{ url_for('static', filename='data/images/' + product['id']|string + '.jpg') }}" alt="{{ product['productDisplayName'] }}">
+                    <div class="product-details">
+                        <div class="product-title">{{ product['productDisplayName'] }}</div>
+                        <div class="product-price">${{ product['price'] }}</div>
+                        <div>ID : {{ product['id'] }}</div>
+                        <div class="rating">⭐ {{ product['rating'] }} ({{ product['num_ratings'] }} avis)</div>
+                    </div>
+                </a>
             </div>
             {% endfor %}
         {% else %}

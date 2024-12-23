@@ -4,7 +4,8 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import networkx as nx
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
+from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.layers import GlobalMaxPooling2D
 from tensorflow.keras.preprocessing import image
@@ -13,15 +14,11 @@ from tensorflow.keras import Sequential
 
 # Dataset path
 DATASET_PATH = "./static/data/"
-#print(os.listdir(DATASET_PATH))
 
 # Load dataset
 df = pd.read_csv(DATASET_PATH + "styles.csv", on_bad_lines='skip')
 
-
 # Helper functions
-
-
 def img_path(img):
     return os.path.join(DATASET_PATH, "images", img)
 
@@ -57,95 +54,82 @@ df_sample = df.sample(10)
 df_embs = df_sample['image'].apply(lambda img: get_embedding(model, img))
 df_embs = pd.DataFrame(df_embs.tolist())
 
-from sklearn.metrics.pairwise import cosine_similarity
-import torch
-import torch.nn.functional as F
-import torch.nn as nn
-import networkx as nx
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
+# Enhanced graph and recommendation functions
+def compute_multi_metric_similarity(embeddings_a, embeddings_b):
+    cosine_sim = cosine_similarity(embeddings_a, embeddings_b)
+    euclidean_dist = euclidean_distances(embeddings_a, embeddings_b)
+    scaler = MinMaxScaler()
+    euclidean_sim = 1 - scaler.fit_transform(euclidean_dist)
+    combined_sim = 0.8 * cosine_sim + 0.2 * euclidean_sim
+    return combined_sim
 
-# 1. Construire le graphe basé sur les similarités entre les embeddings
-def build_graph(df_embs, threshold=0.7):
-    """
-    Construction du graphe avec sélection des k voisins les plus proches
-    """
+def build_enhanced_graph(df_embs, min_threshold=0.9, max_neighbors=10):
     G = nx.Graph()
     num_items = len(df_embs)
-    similarities = cosine_similarity(df_embs)
+    similarities = compute_multi_metric_similarity(df_embs, df_embs)
+    similarities = np.power(similarities, 2)
     
     for i in range(num_items):
         G.add_node(i)
-        # Sélectionner les 10 voisins les plus similaires
-        top_k_neighbors = np.argsort(similarities[i])[::-1][1:11]
-        
-        for j in top_k_neighbors:
-            if similarities[i, j] > threshold:
-                G.add_edge(i, j, weight=similarities[i, j])
+        sim_scores = similarities[i]
+        potential_neighbors = np.where(sim_scores > min_threshold)[0]
+        potential_neighbors = potential_neighbors[potential_neighbors != i]
+        if len(potential_neighbors) > max_neighbors:
+            top_neighbors = potential_neighbors[np.argsort(sim_scores[potential_neighbors])[-max_neighbors:]]
+        else:
+            top_neighbors = potential_neighbors
+            
+        for j in top_neighbors:
+            G.add_edge(i, j, weight=similarities[i, j])
     
-    return G
-    
-# 2. Calculer les poids d'attention pour les voisins dans le graphe
-def compute_attention(graph, df_embs ):
-    """
-    Calcule les poids d'attention pour chaque voisin d'un nœud dans le graphe.
-    """
+    return G, similarities
+
+def compute_enhanced_attention(graph, embeddings, similarities, temperature=0.5):
     attention_weights = {}
     for node in graph.nodes():
         neighbors = list(graph.neighbors(node))
         if not neighbors:
             continue
-        node_embedding = df_embs[node].reshape(1, -1)
-        neighbor_embeddings = df_embs[neighbors]
-        similarities = cosine_similarity(node_embedding, neighbor_embeddings).flatten()
-        exp_similarities = np.exp(similarities)
-        attention_weights[node] = exp_similarities / np.sum(exp_similarities)
+        neighbor_similarities = similarities[node, neighbors]
+        attention_scores = np.exp(neighbor_similarities / temperature)
+        attention_weights[node] = attention_scores / np.sum(attention_scores)
     return attention_weights
 
-# 3. Propagation des informations à travers le graphe
-def propagate_information(graph, df_embs, attention_weights, num_iterations=4):
-    updated_embeddings = df_embs.copy()
-    for _ in range(num_iterations):
+def propagate_enhanced_information(graph, embeddings, attention_weights, num_iterations=3, decay_factor=0.9):
+    updated_embeddings = embeddings.copy()
+    for iteration in range(num_iterations):
         new_embeddings = updated_embeddings.copy()
+        current_decay = decay_factor ** iteration
         for node in graph.nodes():
             neighbors = list(graph.neighbors(node))
             if not neighbors:
                 continue
-            
-            # Add a normalization factor
-            aggregated = np.zeros_like(df_embs[node])
+            aggregated = np.zeros_like(embeddings[node])
             total_weight = 0
-            
             for i, neighbor in enumerate(neighbors):
-                weight = attention_weights[node][i]
+                weight = attention_weights[node][i] * current_decay
                 aggregated += weight * updated_embeddings[neighbor]
                 total_weight += weight
-            
-            # Normalize the aggregation
-            new_embeddings[node] = aggregated / total_weight if total_weight > 0 else df_embs[node]
-        
+            if total_weight > 0:
+                new_embeddings[node] = (0.8 * embeddings[node] + 0.2 * (aggregated / total_weight))
         updated_embeddings = new_embeddings
     return updated_embeddings
 
-# 4. Recommandation : Trouver les articles les plus similaires
-def find_top_similar_items(target_idx, updated_embeddings, top_n=10):
-    """
-    Trouve les top_n articles les plus similaires à un article cible et calcule leurs poids.
-    """
-    similarities = cosine_similarity(updated_embeddings[target_idx].reshape(1, -1), updated_embeddings).flatten()
-    similar_indices = np.argsort(similarities)[::-1]  # Tri décroissant
-    similar_indices = [idx for idx in similar_indices if idx != target_idx]  # Exclure l'article cible
-    similar_items = similar_indices[:top_n]
-    weights = similarities[similar_items]
-    return similar_items, weights
+def find_enhanced_similar_items(target_idx, embeddings, similarities, top_n=8, similarity_threshold=0.85):
+    initial_similarities = similarities[target_idx]
+    valid_candidates = np.where(initial_similarities > similarity_threshold)[0]
+    valid_candidates = valid_candidates[valid_candidates != target_idx]
+    if len(valid_candidates) == 0:
+        return np.array([]), np.array([])
+    candidate_similarities = similarities[valid_candidates][:, valid_candidates]
+    coherence_scores = np.mean(candidate_similarities, axis=1)
+    final_scores = 0.7 * initial_similarities[valid_candidates] + 0.3 * coherence_scores
+    top_indices = np.argsort(final_scores)[::-1][:top_n]
+    selected_items = valid_candidates[top_indices]
+    selected_weights = initial_similarities[selected_items]
+    return selected_items, selected_weights
 
-# Pipeline intégré
-# Construire le graphe
-graph = build_graph(df_embs.values, threshold=0.7)
-
-# Calculer les poids d'attention
-attention_weights = compute_attention(graph, df_embs.values)
-
-# Propager les informations dans le graphe
-updated_embeddings = propagate_information(graph, df_embs.values, attention_weights, num_iterations=4)
-#np.save("static/data/updated_embeddings.npy", updated_embeddings)
+# Run enhanced pipeline
+#graph, similarities = build_enhanced_graph(df_embs.values)
+#attention_weights = compute_enhanced_attention(graph, df_embs.values, similarities)
+#updated_embeddings = propagate_enhanced_information(graph, df_embs.values, attention_weights)

@@ -69,10 +69,6 @@
             margin-bottom: 1rem;
             color: #222;
         }
-        a {
-            text-decoration: none; /* Supprime le soulignement */
-            color: inherit; /* Hérite de la couleur parent (évite le bleu par défaut) */
-        }
 
         .product-info ul {
             list-style: none;
@@ -160,6 +156,11 @@
             font-size: 0.9rem;
             color: #666;
         }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
     </style>
 </head>
 <body>
@@ -191,7 +192,7 @@
                 <li><strong>Genre :</strong> {{ product.gender }}</li>
                 <li><strong>Saison :</strong> {{ product.season }}</li>
                 <li><strong>Prix :</strong> <span class="price">{{ product.price }} €</span></li>
-                <p style=" color: #f39c12; font-weight: bold;">Évaluation : {{ product.rating }} ⭐</p>
+                <p style="color: #f39c12; font-weight: bold;">Évaluation : {{ product.rating }} ⭐</p>
             </ul>
             <button class="buy-btn">
                 <i class="fas fa-shopping-cart"></i> J'ACHÈTE
@@ -205,64 +206,17 @@
         <div class="carousel">
             {% for similar_product in similar_products %}
             <!-- Lien dynamique pour le produit similaire -->
-            <a href="{{ url_for('product_details', product_name=similar_product.productDisplayName|replace(' ', '%20')) }}" class="product-card" data-name="{{ similar_product.productDisplayName }}">
+            <a href="{{ url_for('product_details', product_name=similar_product.productDisplayName|replace(' ', '%20')) }}" class="product-card">
                 <img src="{{ url_for('static', filename='data/images/' + similar_product.image) }}" 
                      alt="{{ similar_product.productDisplayName }}">
                 <h3>{{ similar_product.productDisplayName }}</h3>
                 <p>Catégorie : {{ similar_product.articleType }}</p>
-                <p>id : {{ similar_product.id }}</p>
-                <p>Prix : {{ similar_product.price }}</p>
+                <p>Prix : {{ similar_product.price }} €</p>
+                <p>Numero : {{ similar_product.id }} </p>
                 <p>Couleur : {{ similar_product.baseColour }}</p>
             </a>
             {% endfor %}
         </div>
     </div>
-
-    <script>
-        // Fonction pour charger les produits similaires via AJAX
-        function loadSimilarProducts(productName) {
-            fetch(`/product_json/${productName}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                    } else {
-                        const similarProductsContainer = document.querySelector('.carousel');
-                        similarProductsContainer.innerHTML = '';  // Clear existing products
-
-                        data.similar_products.forEach(product => {
-                            const productCard = document.createElement('a');
-                            productCard.classList.add('product-card');
-                            productCard.href = `/product_details/${product.productDisplayName.replace(' ', '%20')}`;
-
-                            const productImage = document.createElement('img');
-                            productImage.src = `/static/data/images/${product.image}`;
-                            productImage.alt = product.productDisplayName;
-
-                            const productTitle = document.createElement('h3');
-                            productTitle.textContent = product.productDisplayName;
-
-                            const productPrice = document.createElement('p');
-                            productPrice.textContent = `Prix : ${product.price} €`;
-
-                            productCard.appendChild(productImage);
-                            productCard.appendChild(productTitle);
-                            productCard.appendChild(productPrice);
-
-                            similarProductsContainer.appendChild(productCard);
-                        });
-                    }
-                })
-                .catch(error => console.error('Erreur de chargement des produits similaires:', error));
-        }
-
-        // Charge les produits similaires lors du clic sur un produit similaire
-        document.querySelectorAll('.product-card').forEach(card => {
-            card.addEventListener('click', (event) => {
-                const productName = event.currentTarget.getAttribute('data-name');
-                loadSimilarProducts(productName);
-            });
-        });
-    </script>
 </body>
 </html>
