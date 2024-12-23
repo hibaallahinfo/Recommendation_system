@@ -69,9 +69,14 @@
         <nav>
             <a href="#">Home</a>
             <a href="#">Shop</a>
-            <a href="#">tendance</a>
-            <a href="#">recommandations pérsonalisés</a>
+            <a href="{{ url_for('popular_products') }}">Tendance</a>
+                <!-- Si l'utilisateur est connecté, affiche ces liens -->
+            <a href="{{ url_for('personalisation', user_id=session['user_id']) }}">Recommandations personnalisées</a>
+            <a href="{{ url_for('dashboard') }}">Tableau de bord</a>
+                <!-- Si l'utilisateur n'est pas connecté, affiche ces liens -->
+            <a href="{{ url_for('logout') }}">Déconnexion</a>
         </nav>
+    
     </header>
 
     <section class="hero-section">

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Recommandations Personnalisées</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+        }
+        .products-container {
+            padding: 20px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            display: inline-block;
+            width: 250px;
+            text-align: center;
+            background-color: #fff;
+        }
+        .product-card h3 {
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .product-card p {
+            color: #555;
+        }
+        .product-card img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Recommandations Personnalisées - {{ season }}</h1>
+    </header>
+    <section class="products-container">
+        {% if products %}
+            {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ url_for('static', filename='images/' + product['id'] + '.jpg') }}" alt="{{ product['name'] }}">
+                    <h3>{{ product['name'] }}</h3>
+                    <p>Saison : {{ product['season'] }}</p>
+                    <p>Prix : {{ product['price'] }} €</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Aucun produit disponible pour la saison actuelle.</p>
+        {% endif %}
+    </section>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommandations Personnalisées</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .products-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            justify-content: center;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            width: 280px;
+            text-align: center;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .product-card:hover {
+            transform: scale(1.05);
+        }
+        .product-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .product-card h3 {
+            font-size: 1.3rem;
+            color: #333;
+            margin: 10px 0;
+        }
+        .product-card p {
+            color: #555;
+            margin: 5px 0;
+        }
+        .no-products {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Bienvenue, {{ user.fullname }} - Recommandations pour la saison {{ season }}</h1>
+    </header>
+    <section class="products-container">
+        {% if recommended_products.empty %}
+            <div class="no-products">
+                <p>Aucun produit ne correspond à vos préférences pour la saison actuelle.</p>
+                <p>Essayez de modifier vos préférences ou revenez plus tard pour de nouvelles recommandations !</p>
+            </div>
+        {% else %}
+            {% for _, product in recommended_products.iterrows() %}
+                <div class="product-card">
+                    <img src="{{ url_for('static', filename='data/images/' + product['id'] + '.jpg') }}" alt="{{ product['productDisplayName'] }}">
+                    <h3>{{ product['productDisplayName'] }}</h3>
+                    <p>Couleur : {{ product['baseColour'] }}</p>
+                    <p>Prix : {{ product['price'] | default('Non disponible') }} €</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </section>
+</body>
+</html>

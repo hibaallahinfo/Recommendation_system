@@ -1,3 +1,5 @@
-fullname,dob,sex,nationality,password
-hiba,2002-12-13,Femme,hibaallah@gmail.com,scrypt:32768:8:1$QesCNffMbVgdZ8vK$e8bc73bb51016133532afab20b553984a407756645df3766122548692684f09c925c696a393d545c56560f37ef1028771f250e363f50a4f736504780000fbb48
-salma,2002-12-12,Female,salma@gmail.com,123456
+id,fullname,dob,gender,email,password,favorite_colors,favorite_category
+0,user,2003-05-13,Homme,user@gmail.com,$2b$12$JOmImah9xOgRn9l6GtMz8ebrNyLlowGfLdr5vM.m/KrYkqTjjVNdy,"blue, red, white",Footwear
+1,hiba,2003-12-12,Femme,hiba@gmail.com,$2b$12$pBVGA4e0NsN/0kBtxypl/OfVbyGTVLuG.aZ5FNfTMfvWtuK..qtVC,"blue, grey, black",Footwear
+2,salma,2002-03-12,Femme,salma@gmail.com,$2b$12$JgIj6q7nXra3jyi7XbtdoODnbGCuvb77QjObtj/Y0s25x0eVAq9Ke,"blue, red",Accessories
+3,imane,2004-02-11,Women,imane@gmail.com,$2b$12$84.YDgcaMBlpz8noV32Z.ORlu4v0ShPLXqA7sQrjAi9YgNufLATD6,"red, yellow",Apparel
