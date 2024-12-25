@@ -91,6 +91,14 @@ def products():
         'usage': request.args.get('usage'),
     }
 
+    # Récupérer les couleurs sélectionnées
+    selected_colors = request.args.get('selectedColors', '')  # Une chaîne séparée par des virgules
+    selected_colors = selected_colors.split(',') if selected_colors else []
+
+    # Récupérer les plages de prix
+    min_price = request.args.get('minPrice', None)
+    max_price = request.args.get('maxPrice', None)
+
     # Charger les données
     df = pd.read_csv(PRODUCT_FILE)
 
@@ -102,9 +110,19 @@ def products():
             else:
                 df = df[df[key] == value]
 
+    # Filtrer par couleurs
+    if selected_colors:
+        df = df[df['baseColour'].isin(selected_colors)]
+
+    # Filtrer par plage de prix
+    if min_price:
+        df = df[df['price'] >= float(min_price)]
+    if max_price:
+        df = df[df['price'] <= float(max_price)]
+
     # Pagination
     page = int(request.args.get('page', 1))
-    per_page = 10
+    per_page = 12
     total_products = len(df)
     total_pages = (total_products // per_page) + (1 if total_products % per_page else 0)
 
@@ -122,7 +140,11 @@ def products():
     return render_template('products.html', products=products, page=page, total_pages=total_pages, filters=filters)
 
 
-@app.route('/product_details/<string:product_name>', methods=['GET'])
+
+
+from flask import session
+
+@app.route('/product_details/<string:product_name>', methods=['GET', 'POST'])
 def product_details(product_name):
     formatted_product_name = product_name.replace('%20', ' ').title()
     product_row = df[df['productDisplayName'].str.lower() == formatted_product_name.lower()]
@@ -136,9 +158,6 @@ def product_details(product_name):
     # Construire le graphe avec les embeddings
     graph, similarities = build_enhanced_graph(embeddings, min_threshold=0.90, max_neighbors=10)
     
-    # Afficher les similarités
-    print("Similarités globales pour le produit {} :".format(formatted_product_name), similarities[product_index])
-    
     # Calculer les poids d'attention
     attention_weights = compute_enhanced_attention(graph, embeddings, similarities, temperature=0.5)
     
@@ -149,21 +168,31 @@ def product_details(product_name):
     similar_indices, weights = find_enhanced_similar_items(
         product_index, updated_embeddings, similarities, 
         top_n=10, 
-        similarity_threshold=0.4  # Réduire le seuil à 0.5 pour tester
+        similarity_threshold=0.4
     )
-    
-    # Logs pour le débogage
-    print("Indices similaires : ", similar_indices)
-    print("Poids des similarités : ", weights)
     
     # Récupération des produits similaires
     similar_products = df.iloc[similar_indices].to_dict(orient='records')
-    print("Produits similaires : ", similar_products)
     
-    # Retourner la page avec les produits similaires
+    # Récupérer le produit actuel
     product = product_row.iloc[0].to_dict()
+
+    # Traitement de l'ajout au panier (méthode POST)
+    if request.method == 'POST':
+        # Ajouter le produit au panier dans la session
+        if 'cart' not in session:
+            session['cart'] = []  # Créer un panier s'il n'existe pas
+        product_id = product['id']
+        
+        # Ajouter le produit au panier
+        session['cart'].append(product_id)
+        
+        # Optionnel : Afficher un message de succès
+        print('Produit ajouté au panier !', 'success')
     
+    # Retourner la page avec les produits similaires et l'état du panier
     return render_template('product_details.html', product=product, similar_products=similar_products)
+
 
 
 @app.route('/preferences', methods=['GET', 'POST'])
@@ -271,6 +300,7 @@ def popular_products():
         sub_category = request.args.get('subCategory')  # Filtre par sous-catégorie
         color = request.args.get('baseColour')  # Filtre par couleur
         n = request.args.get('n', default=30, type=int)  # Nombre de produits à afficher
+        page = request.args.get('page', default=1, type=int)  # Page actuelle
 
         # Vérifier que le DataFrame est valide
         if df.empty:
@@ -289,8 +319,17 @@ def popular_products():
             n=n
         )
 
+        # Calculer le nombre total de produits et le nombre total de pages
+        total_products = len(top_products)
+        total_pages = (total_products // n) + (1 if total_products % n != 0 else 0)
+
+        # Récupérer les produits pour la page actuelle
+        start_idx = (page - 1) * n
+        end_idx = start_idx + n
+        products_on_page = top_products.iloc[start_idx:end_idx]
+
         # Convertir les résultats en dictionnaire pour l'affichage dans le template
-        products = top_products.to_dict(orient='records')
+        products = products_on_page.to_dict(orient='records')
 
         # Retourner les résultats à la page HTML
         return render_template(
@@ -299,7 +338,10 @@ def popular_products():
             gender=gender,
             category=category,
             sub_category=sub_category,
-            color=color
+            color=color,
+            total_products=total_products,
+            total_pages=total_pages,
+            current_page=page
         )
 
     except Exception as e:
@@ -328,22 +370,22 @@ def personalisation(user_id):
         # Charger les données utilisateur
         users_df = pd.read_csv(USER_FILE)
         if user_id >= len(users_df):
-            flash("Utilisateur introuvable.", "danger")
+            flash("User not found.", "danger")
             return redirect(url_for('login'))
         user = users_df.iloc[user_id]
     except FileNotFoundError:
-        flash("Fichier utilisateur introuvable.", "danger")
+        flash("User file not found.", "danger")
         return redirect(url_for('login'))
 
     try:
         # Charger les produits
         products_df = pd.read_csv(PRODUCT_FILE)
     except FileNotFoundError:
-        flash("Fichier de produits introuvable.", "danger")
+        flash("Product file not found.", "danger")
         return redirect(url_for('login'))
 
     # Préférences utilisateur
-    favorite_colors = user['favorite_colors'].split(', ')  # Liste des couleurs
+    favorite_colors = user['favorite_colors'].split(', ')
     favorite_category = user['favorite_category']
     gender = user['gender']
 
@@ -360,10 +402,7 @@ def personalisation(user_id):
             any(color.strip().lower() in row['baseColour'].lower() for color in favorite_colors)
         )
 
-    # Appliquer le filtre
     recommended_products = products_df[products_df.apply(matches_preferences, axis=1)]
-
-    # Vérification des IDs
     recommended_products['id'] = recommended_products['id'].astype(str)
 
     return render_template(
@@ -373,12 +412,54 @@ def personalisation(user_id):
         season=current_season
     )
 
-
 @app.route('/logout')
 def logout():
     session.clear()  # Supprime toutes les données de session
     flash("Déconnexion réussie.", "success")
     return redirect(url_for('login'))
+# Ajout au panier
+@app.route('/add_to_cart/<int:product_id>', methods=['POST'])
+def add_to_cart(product_id):
+    if 'cart' not in session:
+        session['cart'] = []
+
+    # Ajouter le produit au panier
+    session['cart'].append(product_id)
+    flash("Produit ajouté au panier !", "success")
+    return redirect(url_for('cart'))
+
+
+
+# Supprimer un produit du panier
+@app.route('/remove_from_cart/<int:product_id>', methods=['POST'])
+def remove_from_cart(product_id):
+    if 'cart' in session:
+        try:
+            session['cart'].remove(product_id)
+            flash("Produit supprimé du panier.", "success")
+        except ValueError:
+            flash("Le produit n'est pas dans votre panier.", "warning")
+    return redirect(url_for('cart'))
+
+
+@app.route('/cart', methods=['GET'])
+def cart():
+    # Récupérer les IDs des produits dans le panier (stockés dans la session)
+    cart_product_ids = session.get('cart', [])
+    
+    # Si le panier est vide
+    if not cart_product_ids:
+        return render_template('cart.html', cart_products=[], message="Your cart is empty.", total_price=0)
+    
+    # Récupérer les informations sur les produits à partir des IDs
+    cart_products = df[df['id'].isin(cart_product_ids)].to_dict(orient='records')
+    
+    # Calculer le prix total du panier
+    total_price = sum(product["price"] for product in cart_products)
+    
+    # Retourner la page du panier avec les produits et le prix total
+    return render_template('cart.html', cart_products=cart_products, total_price=total_price)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

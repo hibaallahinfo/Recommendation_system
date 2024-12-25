@@ -1,85 +1,356 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recommandations Personnalisées</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f8f8;
-            margin: 0;
-            padding: 0;
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Personal Fashion Recommendations</title>
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+   <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+       :root {
+           --primary-color: #1a1a1a;
+           --accent-color: #c9a77c;
+           --bg-color: #f8f5f2;
+           --text-color: #333;
+           --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+           --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+       }
+
+       body {
+           font-family: 'Poppins', sans-serif;
+           background-color: var(--bg-color);
+           margin: 0;
+           padding: 0;
+           color: var(--text-color);
+           line-height: 1.6;
+       }
+
+       header {
+           background-color: rgba(255, 255, 255, 0.95);
+           padding: 15px 40px;
+           position: fixed;
+           width: 100%;
+           box-sizing: border-box;
+           z-index: 1000;
+           transition: var(--transition);
+           backdrop-filter: blur(10px);
+       }
+       .rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #eab308;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.rating i {
+    font-size: 0.85rem;
+}
+
+       header.scrolled {
+           background-color: var(--primary-color);
+           box-shadow: var(--card-shadow);
+       }
+
+       .header-content {
+           max-width: 1400px;
+           margin: 0 auto;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+       }
+
+       .logo {
+           font-family: 'Playfair Display', serif;
+           font-size: 1.8rem;
+           color: var(--primary-color);
+           font-weight: 600;
+           letter-spacing: 1px;
+           transition: var(--transition);
+       }
+
+       nav {
+           display: flex;
+           gap: 30px;
+       }
+
+       nav a {
+           color: var(--primary-color);
+           text-decoration: none;
+           text-transform: uppercase;
+           font-size: 0.85rem;
+           letter-spacing: 1.5px;
+           font-weight: 500;
+           transition: var(--transition);
+           position: relative;
+           padding-bottom: 4px;
+       }
+
+       nav a::after {
+           content: '';
+           position: absolute;
+           width: 0;
+           height: 2px;
+           bottom: 0;
+           left: 0;
+           background-color: var(--accent-color);
+           transition: var(--transition);
+       }
+
+       nav a:hover::after {
+           width: 100%;
+       }
+
+       header.scrolled nav a,
+       header.scrolled .logo {
+           color: var(--bg-color);
+       }
+
+       .main-content {
+           padding-top: 120px;
+           max-width: 1600px;
+           margin: 0 auto;
+       }
+
+       .products-container {
+           display: grid;
+           grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+           gap: 30px;
+           padding: 20px;
+       }
+
+       .product-card {
+           background-color: #fff;
+           border-radius: 12px;
+           overflow: hidden;
+           transition: var(--transition);
+           position: relative;
+           box-shadow: var(--card-shadow);
+       }
+
+       .product-card:hover {
+           transform: translateY(-8px);
+           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+       }
+
+       .product-card .image-container {
+           position: relative;
+           overflow: hidden;
+           height: 350px;
+       }
+
+       .product-card img {
+           width: 100%;
+           height: 100%;
+           object-fit: cover;
+           transition: var(--transition);
+       }
+
+       .product-card:hover img {
+           transform: scale(1.05);
+       }
+
+       .product-info {
+           padding: 20px;
+           position: relative;
+           background: linear-gradient(0deg, #fff 0%, rgba(255, 255, 255, 0.9) 100%);
+       }
+
+       .product-card h3 {
+           font-family: 'Playfair Display', serif;
+           font-size: 1.2rem;
+           color: var(--primary-color);
+           margin: 10px 0;
+           line-height: 1.4;
+       }
+
+       .product-card p {
+           font-size: 0.9rem;
+           color: var(--text-color);
+           margin: 5px 0;
+       }
+
+       .price {
+           font-weight: 600;
+           color: var(--accent-color);
+           font-size: 1.2rem;
+           margin-top: 15px;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+       }
+
+       .color-badge {
+           display: inline-block;
+           padding: 4px 12px;
+           background-color: var(--accent-color);
+           color: white;
+           border-radius: 20px;
+           font-size: 0.8rem;
+           margin-top: 5px;
+       }
+       a {
+            text-decoration: none;
+            color: inherit;
         }
-        header {
-            background-color: #000;
-            color: #fff;
-            padding: 10px 20px;
-            text-align: center;
-        }
-        .products-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 20px;
-            justify-content: center;
-        }
-        .product-card {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            width: 280px;
-            text-align: center;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-        }
-        .product-card:hover {
-            transform: scale(1.05);
-        }
-        .product-card img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
-        }
-        .product-card h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin: 10px 0;
-        }
-        .product-card p {
-            color: #555;
-            margin: 5px 0;
-        }
-        .no-products {
-            text-align: center;
-            padding: 20px;
-            font-size: 1.2rem;
-            color: #888;
-        }
-    </style>
+       .no-products {
+           text-align: center;
+           padding: 40px;
+           font-size: 1.2rem;
+           color: var(--text-color);
+           grid-column: 1 / -1;
+       }
+
+       .pagination {
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           margin: 40px 0;
+           gap: 15px;
+           width: 100%;
+           grid-column: 1 / -1;
+       }
+
+       .pagination a {
+           padding: 12px 24px;
+           text-decoration: none;
+           color: var(--primary-color);
+           background-color: white;
+           border: 1px solid #eee;
+           border-radius: 8px;
+           transition: var(--transition);
+           font-weight: 500;
+           min-width: 100px;
+           text-align: center;
+       }
+
+       .pagination a.active {
+           background-color: var(--accent-color);
+           color: white;
+           border-color: var(--accent-color);
+           cursor: default;
+       }
+
+       .pagination a:not(.active):hover {
+           background-color: var(--accent-color);
+           color: white;
+           transform: translateY(-2px);
+           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+       }
+
+       .pagination-btn {
+           font-weight: 600;
+       }
+
+       @media (max-width: 768px) {
+           .products-container {
+               grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+               gap: 20px;
+               padding: 15px;
+           }
+
+           .product-card .image-container {
+               height: 280px;
+           }
+
+           nav {
+               gap: 15px;
+           }
+
+           nav a {
+               font-size: 0.8rem;
+           }
+
+           .logo {
+               font-size: 1.5rem;
+           }
+       }
+   </style>
 </head>
 <body>
-    <header>
-        <h1>Bienvenue, {{ user.fullname }} - Recommandations pour la saison {{ season }}</h1>
-    </header>
-    <section class="products-container">
-        {% if recommended_products.empty %}
-            <div class="no-products">
-                <p>Aucun produit ne correspond à vos préférences pour la saison actuelle.</p>
-                <p>Essayez de modifier vos préférences ou revenez plus tard pour de nouvelles recommandations !</p>
-            </div>
-        {% else %}
-            {% for _, product in recommended_products.iterrows() %}
-                <div class="product-card">
-                    <img src="{{ url_for('static', filename='data/images/' + product['id'] + '.jpg') }}" alt="{{ product['productDisplayName'] }}">
-                    <h3>{{ product['productDisplayName'] }}</h3>
-                    <p>Couleur : {{ product['baseColour'] }}</p>
-                    <p>Prix : {{ product['price'] | default('Non disponible') }} €</p>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </section>
+   <header>
+       <div class="header-content">
+           <div class="logo">FASHION 2024</div>
+           <nav>
+               <a href="{{ url_for('products') }}">Shop</a>
+               <a href="{{ url_for('popular_products') }}">Trending</a>
+               <a href="{{ url_for('personalisation', user_id=session['user_id']) }}">Personal Style</a>
+               <a href="{{ url_for('dashboard') }}">Dashboard</a>
+               <a href="{{ url_for('logout') }}">Sign Out</a>
+           </nav>
+       </div>
+   </header>
+
+   <div class="main-content">
+       <section class="products-container">
+           {% if recommended_products.empty %}
+               <div class="no-products">
+                   <p>No products match your preferences for the current season.</p>
+                   <p>Try adjusting your preferences or check back later for new recommendations!</p>
+               </div>
+           {% else %}
+               {% set items_per_page = 12 %}
+               {% set total_items = recommended_products|length %}
+               {% set total_pages = ((total_items - 1) // items_per_page) + 1 %}
+               {% set current_page = request.args.get('page', 1)|int %}
+               {% set start_idx = (current_page - 1) * items_per_page %}
+               {% set end_idx = start_idx + items_per_page %}
+
+               {% for index in range(start_idx, end_idx) %}
+                   {% if index < total_items %}
+                       {% set product = recommended_products.iloc[index] %}
+                       <div class="product-card">
+                           <a href="{{ url_for('product_details', product_name=product['productDisplayName']) }}">
+                               <div class="image-container">
+                                   <img src="{{ url_for('static', filename='data/images/' + product['id'] + '.jpg') }}" 
+                                        alt="{{ product['productDisplayName'] }}">
+                               </div>
+                               <div class="product-info">
+                                   <h3>{{ product['productDisplayName'] }}</h3>
+                                   <div class="rating">
+                                    {{ product['rating'] }}
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                   <div class="price">
+                                       <span>€{{ product['price'] | default('Price on request') }}<i class="fas fa-star"></i></span>
+                                       <span class="color-badge">View Details</span>
+                                   </div>
+                               </div>
+                           </a>
+                       </div>
+                   {% endif %}
+               {% endfor %}
+
+               {% if total_pages > 1 %}
+                   <div class="pagination">
+                       {% if current_page > 1 %}
+                           <a href="{{ url_for('personalisation', user_id=user.name, page=current_page-1) }}" 
+                              class="pagination-btn">&laquo; Previous</a>
+                       {% endif %}
+                       
+                       <a href="#" class="active">{{ current_page }}/{{ total_pages }}</a>
+                       
+                       {% if current_page < total_pages %}
+                           <a href="{{ url_for('personalisation', user_id=user.name, page=current_page+1) }}"
+                              class="pagination-btn">Next &raquo;</a>
+                       {% endif %}
+                   </div>
+               {% endif %}
+           {% endif %}
+       </section>
+   </div>
+
+   <script>
+       window.addEventListener('scroll', function() {
+           const header = document.querySelector('header');
+           if (window.scrollY > 50) {
+               header.classList.add('scrolled');
+           } else {
+               header.classList.remove('scrolled');
+           }
+       });
+   </script>
 </body>
 </html>

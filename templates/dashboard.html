@@ -1,100 +1,598 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tableau de Bord</title>
+    <title>Luxury Fashion | Fall Collection 2024</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <style>
-        /* Styles CSS de base inspirés de votre image */
+        :root {
+            --primary-color: #1a1a1a;
+            --accent-color: #c9a77c;
+            --bg-color: #f8f5f2;
+            --text-color: #333;
+            --transition: all 0.3s ease;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Tenor Sans', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8f8f8;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
+
         header {
-            background-color: #000;
-            color: #fff;
-            padding: 10px 20px;
+            background-color: transparent;
+            padding: 20px 50px;
+            position: fixed;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        header.scrolled {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
+        .logo {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
         nav a {
-            color: #fff;
-            margin: 0 10px;
+            color: var(--primary-color);
+            margin: 0 20px;
             text-decoration: none;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: var(--transition);
         }
+
+        header.scrolled nav a {
+            color: white;
+        }
+
+        nav a:hover {
+            color: var(--accent-color);
+        }
+
         .hero-section {
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background-color: #fafafa;
-            padding: 50px;
+            padding: 0 50px;
+            background-color: var(--bg-color);
+            position: relative;
         }
+
+        .hero-content {
+            flex: 1;
+            padding-right: 50px;
+        }
+
+        .collection-tag {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+        }
+
         .hero-content h1 {
-            font-size: 2.5rem;
+            font-size: 4rem;
+            line-height: 1.2;
+            margin: 20px 0;
+            color: var(--primary-color);
+            font-weight: 400;
         }
+
         .hero-content p {
-            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
         }
-        .hero-content button {
-            background-color: #000;
-            color: #fff;
+
+        .shop-now-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: var(--transition);
             border: none;
-            padding: 10px 20px;
             cursor: pointer;
         }
-        .hero-image img {
-            width: 700px;
-            height: 390px;
-            border-radius: 10px;
+
+        .shop-now-button:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
         }
-        footer {
-            background-color: #000;
-            color: #fff;
-            text-align: center;
-            padding: 10px;
-            position: fixed;
-            bottom: 0;
+
+        .hero-image {
+            flex: 1;
+            position: relative;
+        }
+
+        .hero-image img {
             width: 100%;
+            height: 30%;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+/* Styles pour la section carousel */
+.carousel-section {
+            padding: 80px 50px;
+            background: var(--bg-color);
+        }
+
+        .swiper {
+            width: 100%;
+            height: 600px;  /* Réduire la hauteur du carrousel */
+        }
+
+        .swiper-slide {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .swiper-slide img {
+            width: 100%; /* Redimensionner l'image */
+            height: 100%;
+            object-fit: contain; /* L'image s'ajuste sans être coupée et sans flou */
+            border-radius: 4px;
+        }
+        .features-section {
+            padding: 80px 50px;
+            background: white;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            padding: 40px;
+            background: var(--bg-color);
+            border-radius: 4px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .categories-section {
+            padding: 80px 50px;
+            background: var(--bg-color);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .category-card {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .category-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .category-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .category-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            transform: translateY(100%);
+            transition: var(--transition);
+        }
+
+        .category-card:hover .category-content {
+            transform: translateY(0);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 50px;
+        }
+
+        .newsletter-section {
+            padding: 80px 50px;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+
+        .newsletter-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .newsletter-button {
+            padding: 15px 30px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .newsletter-button:hover {
+            background: #b38e63;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 40px 50px 20px;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-section a:hover {
+            color: var(--accent-color);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 1024px) {
+            .hero-section {
+                flex-direction: column;
+                padding-top: 100px;
+            }
+
+            .hero-content {
+                padding-right: 0;
+                text-align: center;
+                margin-bottom: 40px;
+            }
+
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+
+            .features-grid, .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .features-grid, .category-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <div>
-            <h1>Male & Women Fashion</h1>
+        <div class="header-content">
+            <div class="logo">LUXE FASHION</div>
+            <nav>
+                <a href="{{ url_for('products') }}">Shop</a>
+                <a href="{{ url_for('popular_products') }}">Trending</a>
+                <a href="{{ url_for('personalisation', user_id=session['user_id']) }}">Personal Style</a>
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('logout') }}">Sign Out</a>
+            </nav>
         </div>
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">Shop</a>
-            <a href="{{ url_for('popular_products') }}">Tendance</a>
-                <!-- Si l'utilisateur est connecté, affiche ces liens -->
-            <a href="{{ url_for('personalisation', user_id=session['user_id']) }}">Recommandations personnalisées</a>
-            <a href="{{ url_for('dashboard') }}">Tableau de bord</a>
-                <!-- Si l'utilisateur n'est pas connecté, affiche ces liens -->
-            <a href="{{ url_for('logout') }}">Déconnexion</a>
-        </nav>
-    
     </header>
 
     <section class="hero-section">
         <div class="hero-content">
-            <p>New COLLECTION</p>
-            <h1>Fall - All Collections 2024-2025</h1>
-            <p>Une sélection exceptionnelle de vêtements de luxe.</p>
+            <div class="collection-tag">New Collection</div>
+            <h1>Fall Collections<br>2024-2025</h1>
+            <p>Discover our exceptional selection of luxury apparel, crafted for the modern connoisseur.</p>
             <a href="{{ url_for('products') }}" class="shop-now-button">
-                <button>Shop Now</button>
+                Explore Collection
             </a>
         </div>
         <div class="hero-image">
-            <img src="{{ url_for('static', filename='hero-image.png') }}" alt="Mode Homme">
+            <img src="{{ url_for('static', filename='hero-image.png') }}" alt="Fashion Collection">
+        </div>
+    </section>
+
+    <section class="carousel-section">
+        <h2 class="section-title" data-aos="fade-up">Latest Collections</h2>
+        <div class="swiper" data-aos="fade-up">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <img src="{{ url_for('static', filename='collection1.jpg') }}" alt="Collection 1">
+                </div>
+                <div class="swiper-slide">
+                    <img src="{{ url_for('static', filename='collection2.jpg') }}" alt="Collection 2">
+                </div>
+                <div class="swiper-slide">
+                    <img src="{{ url_for('static', filename='collection3.jpg') }}" alt="Collection 3">
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <h2 class="section-title" data-aos="fade-up">Why Choose Us</h2>
+        <div class="features-grid">
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-icon">✨</div>
+                <h3>Premium Quality</h3>
+                <p>Carefully curated selection of luxury materials and craftsmanship</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-icon">🌍</div>
+                <h3>Sustainable Fashion</h3>
+                <p>Committed to ethical production and environmental responsibility</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-icon">🎯</div>
+                <h3>Personal Styling</h3>
+                <p>Expert fashion advice tailored to your unique style preferences</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="categories-section">
+        <h2 class="section-title" data-aos="fade-up">Shop by Category</h2>
+        <div class="category-grid">
+            <div class="category-card" data-aos="fade-up" data-aos-delay="100">
+                <img src="{{ url_for('static', filename='women.jpg') }}" alt="Women's Fashion">
+                <div class="category-content">
+                    <h3>Women's Fashion</h3>
+                    <p>Discover the latest trends in women's fashion</p>
+                </div>
+            </div>
+            <div class="category-card" data-aos="fade-up" data-aos-delay="200">
+                <img src="{{ url_for('static', filename='men.jpg') }}" alt="Men's Fashion">
+                <div class="category-content">
+                    <h3>Men's Fashion</h3>
+                    <p>Explore our curated collection for men</p>
+                </div>
+            </div>
+            <div class="category-card" data-aos="fade-up" data-aos-delay="300">
+                <img src="{{ url_for('static', filename='accessories.jpg') }}" alt="Accessories">
+                <div class="category-content">
+                    <h3>Accessories</h3>
+                    <p>Complete your look with premium accessories</p>
+                </div>
+            </div>
+            <div class="category-card" data-aos="fade-up" data-aos-delay="400">
+                <img src="{{ url_for('static', filename='shoes.jpg') }}" alt="Footwear">
+                <div class="category-content">
+                    <h3>Footwear</h3>
+                    <p>Step into luxury with our footwear collection</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="newsletter-section">
+        <div class="newsletter-content" data-aos="fade-up">
+            <h2>Subscribe to Our Newsletter</h2>
+            <p>Stay updated with our latest collections and exclusive offers</p>
+            <form class="newsletter-form">
+                <input type="email" class="newsletter-input" placeholder="Enter your email address" required>
+                <button type="submit" class="newsletter-button">Subscribe</button>
+            </form>
         </div>
     </section>
 
     <footer>
-        <p>Free shipping, 30-day return & refund guarantee.</p>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About Us</h4>
+                <ul>
+                    <li><a href="#">Our Story</a></li>
+                    <li><a href="#">Sustainability</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Customer Service</h4>
+                <ul>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Shipping & Returns</a></li>
+                    <li><a href="#">Size Guide</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Shopping</h4>
+                <ul>
+                    <li><a href="#">New Arrivals</a></li>
+                    <li><a href="#">Women</a></li>
+                    <li><a href="#">Men</a></li>
+                    <li><a href="#">Accessories</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <ul>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">Facebook</a></li>
+                    <li><a href="#">Twitter</a></li>
+                    <li><a href="#">Pinterest</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 LUXE FASHION. All rights reserved.</p>
+        </div>
     </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        // Initialize Swiper
+        new Swiper('.swiper', {
+            loop: true,
+            autoplay: {
+                delay: 3000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true
+            },
+        });
+
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Newsletter form submission
+        document.querySelector('.newsletter-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+            // Add your newsletter subscription logic here
+            alert('Thank you for subscribing!');
+            e.target.reset();
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,299 +1,600 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produits</title>
+    <title>Products</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Styles CSS */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #c9a77c;
+            --secondary-color: #000000;
+            --background-color: #f8f5f2;
+            --card-background: #f8f5f2;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
 
-        /* Navbar */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+        }
+
         header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 0;
-            text-align: center;
+            background-color: var(--secondary-color);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         h1 {
-            margin: 0;
-            margin-left: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
         }
 
         .search-navbar {
             display: flex;
-            align-items: center;
-            margin-right: 20px;
+            gap: 0.5rem;
+            width: 40%;
+            background-color: #000000;
         }
 
         .search-navbar input {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-right: none;
-            border-radius: 5px 0 0 5px;
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .search-navbar input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .search-navbar button {
-            padding: 8px 12px;
-            background-color: #555;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
             color: white;
-            border: 1px solid #555;
-            border-left: none;
-            border-radius: 0 5px 5px 0;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
             cursor: pointer;
+            transition: background-color 0.2s;
         }
 
-        .search-navbar button:hover {
-            background-color: #777;
-        }
-
-        /* Conteneur principal */
         .container {
-            display: flex;
-            margin: 20px;
+            max-width: 1600px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
         }
 
-        /* Barre de filtres */
         .filters {
-            width: 20%;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
         }
 
-        .filters h2 {
-            margin-top: 0;
+        .filter-group {
+            margin-bottom: 1.5rem;
         }
 
-        .filters form label {
+        .filter-group label {
             display: block;
-            margin: 10px 0 5px;
-            font-weight: bold;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
         }
 
-        .filters select, button {
+        select {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        button {
-            background-color: #333;
-            color: #fff;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            background-color: white;
             cursor: pointer;
         }
 
-        button:hover {
-            background-color: #555;
-        }
-
-        /* Produits */
-        .products {
-            width: 80%;
+        .color-options {
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-around;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            gap: 0.75rem;
+        }
+
+        .color-circle {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .color-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .color-circle.selected {
+            border-color: var(--primary-color);
+        }
+
+        .color-circle.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        /* Color definitions */
+        .color-circle.red { background-color: #dc2626; }
+        .color-circle.yellow { background-color: #fbbf24; }
+        .color-circle.green { background-color: #22c55e; }
+        .color-circle.blue { background-color: #3b82f6; }
+        .color-circle.purple { background-color: #7c3aed; }
+        .color-circle.pink { background-color: #ec4899; }
+        .color-circle.orange { background-color: #f97316; }
+        .color-circle.brown { background-color: #92400e; }
+        .color-circle.grey { background-color: #6b7280; }
+        .color-circle.black { background-color: black; }
+        .color-circle.white { 
+            background-color: white; 
+            border: 2px solid #e2e8f0; 
+        }
+        .color-circle.navy-blue { background-color: #1e3a8a; }
+        .color-circle.maroon { background-color: #7f1d1d; }
+        .color-circle.beige { 
+            background-color: #fef3c7; 
+            border: 2px solid #e2e8f0; 
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
         }
 
         .product {
-            width: 30%;
-            margin: 15px 0;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            text-align: center;
-            background-color: #fff;
-            border-radius: 5px;
-        }
+    background: #ffffff;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
 
-        .product img {
-            width: 100%;
-            height: auto;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 10px;
-        }
+.product:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
+}
 
-        .product h3 {
-            margin: 10px 0;
-            font-size: 18px;
-        }
+.product img {
+    width: 100%; /* L'image occupe toute la largeur */
+    height: auto;
+    object-fit: cover; /* Ajustement de l'image sans distorsion */
+    border-bottom: 1px solid #f0f0f0;
+}
 
-        .product p {
-            margin: 5px 0;
-            color: #555;
-        }
+.product-info {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
 
-        .product .rating {
-            color: #f39c12;
-            font-weight: bold;
-        }
+.product h3 {
+    font-size: 1.25rem;
+    margin: 0;
+    font-weight: 600;
+    color: #333333;
+}
 
+.product p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    color: #eab308;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.rating i {
+    font-size: 0.85rem;
+}
+
+.product a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+
+        /* Pagination */
+        .pagination {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
         a {
             text-decoration: none;
             color: inherit;
         }
-
-        /* Pagination */
-        .pagination {
-            text-align: center;
-            margin: 20px auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
         .pagination a {
+            padding: 0.75rem 1rem;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
             text-decoration: none;
-            padding: 10px 15px;
-            margin: 0 5px;
-            background-color: #333;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-color);
             color: white;
-            border-radius: 5px;
-            font-size: 14px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
 
-        .pagination a:hover {
-            background-color: #555;
+        button[type="submit"]:hover {
+            background-color: var(--secondary-color);
         }
 
-        .pagination span {
-            font-size: 16px;
-            margin: 0 10px;
-            font-weight: bold;
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
         }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .search-navbar {
+                width: 100%;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .products {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .product-details-grid {
+                grid-template-columns: 1fr;
+            }
+            
+        }
+        .toggle-filters-btn {
+    display: none;
+    background: var(--card-background);
+    color: #333;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+.toggle-filters-btn[aria-expanded="true"]::after {
+    content: "▲";
+    margin-left: 0.5rem;
+}
+
+.toggle-filters-btn[aria-expanded="false"]::after {
+    content: "▼";
+    margin-left: 0.5rem;
+}
+
+.filters {
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.filters.hidden {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+.price-range {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.price-range input {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+}
+
+
+@media (max-width: 1024px) {
+    .toggle-filters-btn {
+        display: block;
+    }
+
+    .filters {
+        position: static;
+        top: unset;
+    }
+}
+
     </style>
 </head>
 <body>
-    <!-- Navbar avec zone de recherche -->
     <header>
-        <h1>Nos Produits</h1>
+        <h1>Our Products</h1>
         <div class="search-navbar">
-            <input type="text" placeholder="Rechercher par nom..." name="searchName">
-            <button type="submit">Rechercher</button>
+            <input type="text" placeholder="Search products..." name="searchName">
+            <button type="submit" style="width: 20%;">
+                <i class="fas fa-search"></i>
+                Search
+            </button>
         </div>
     </header>
 
     <div class="container">
-        <!-- Barre de filtres -->
         <div class="filters">
-            <h2>Filtres</h2>
+            <button class="toggle-filters-btn" aria-expanded="false">
+                 Filtres
+            </button>
+            <h2>Filters</h2>
             <form method="GET" action="{{ url_for('products') }}">
-                <label>Genre :</label>
-                <select name="gender">
-                    <option value="">Tous</option>
-                    <option value="Men" {% if filters.gender == 'Men' %}selected{% endif %}>Homme</option>
-                    <option value="Women" {% if filters.gender == 'Women' %}selected{% endif %}>Femme</option>
-                </select>
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-user"></i>
+                        Gender
+                    </label>
+                    <select name="gender">
+                        <option value="">All</option>
+                        <option value="Men">Men</option>
+                        <option value="Women">Women</option>
+                    </select>
+                </div>
 
-                <label>Catégorie principale :</label>
-                <select name="masterCategory">
-                    <option value="">Toutes</option>
-                    <option value="Apparel" {% if filters.masterCategory == 'Apparel' %}selected{% endif %}>Vêtements</option>
-                    <option value="Accessories" {% if filters.masterCategory == 'Accessories' %}selected{% endif %}>Accessoires</option>
-                    <option value="Footwear" {% if filters.masterCategory == 'Footwear' %}selected{% endif %}>Chaussures</option>
-                </select>
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-tshirt"></i>
+                        Category
+                    </label>
+                    <select name="masterCategory">
+                        <option value="">All</option>
+                        <option value="Apparel">Apparel</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Footwear">Footwear</option>
+                    </select>
+                </div>
 
-                <label>Sous-Catégorie :</label>
-                <select name="subCategory">
-                    <option value="">Toutes</option>
-                    <option value="Topwear" {% if filters.subCategory == 'Topwear' %}selected{% endif %}>Hauts</option>
-                    <option value="Bottomwear" {% if filters.subCategory == 'Bottomwear' %}selected{% endif %}>Bas</option>
-                    <option value="Watches" {% if filters.subCategory == 'Watches' %}selected{% endif %}>Montres</option>
-                </select>
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-tags"></i>
+                        Subcategory
+                    </label>
+                    <select name="subCategory">
+                        <option value="">All</option>
+                        <option value="Topwear">Topwear</option>
+                        <option value="Bottomwear">Bottomwear</option>
+                        <option value="Watches">Watches</option>
+                    </select>
+                </div>
 
-                <label>Type d'Article :</label>
-                <select name="articleType">
-                    <option value="">Tous</option>
-                    <option value="Shirts" {% if filters.articleType == 'Shirts' %}selected{% endif %}>Chemises</option>
-                    <option value="Jeans" {% if filters.articleType == 'Jeans' %}selected{% endif %}>Jeans</option>
-                    <option value="Track Pants" {% if filters.articleType == 'Track Pants' %}selected{% endif %}>Pantalons de sport</option>
-                    <option value="Watches" {% if filters.articleType == 'Watches' %}selected{% endif %}>Montres</option>
-                </select>
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-palette"></i>
+                        Color
+                    </label>
+                    <div class="color-options">
+                        <input type="hidden" name="selectedColors" id="selectedColors">
+                        <div class="color-circle red" data-color="Red" title="Red"></div>
+                        <div class="color-circle yellow" data-color="Yellow" title="Yellow"></div>
+                        <div class="color-circle green" data-color="Green" title="Green"></div>
+                        <div class="color-circle blue" data-color="Blue" title="Blue"></div>
+                        <div class="color-circle purple" data-color="Purple" title="Purple"></div>
+                        <div class="color-circle pink" data-color="Pink" title="Pink"></div>
+                        <div class="color-circle orange" data-color="Orange" title="Orange"></div>
+                        <div class="color-circle brown" data-color="Brown" title="Brown"></div>
+                        <div class="color-circle grey" data-color="Grey" title="Grey"></div>
+                        <div class="color-circle black" data-color="Black" title="Black"></div>
+                        <div class="color-circle white" data-color="White" title="White"></div>
+                        <div class="color-circle navy-blue" data-color="Navy Blue" title="Navy Blue"></div>
+                        <div class="color-circle maroon" data-color="Maroon" title="Maroon"></div>
+                        <div class="color-circle beige" data-color="Beige" title="Beige"></div>
+                    </div>
+                </div>
 
-                <label>Couleur :</label>
-                <select name="baseColour">
-                    <option value="">Toutes</option>
-                    <option value="Black" {% if filters.baseColour == 'Black' %}selected{% endif %}>Noir</option>
-                    <option value="White" {% if filters.baseColour == 'White' %}selected{% endif %}>Blanc</option>
-                    <option value="Blue" {% if filters.baseColour == 'Blue' %}selected{% endif %}>Bleu</option>
-                    <option value="Navy Blue" {% if filters.baseColour == 'Navy Blue' %}selected{% endif %}>Bleu Marine</option>
-                    <option value="Silver" {% if filters.baseColour == 'Silver' %}selected{% endif %}>Argent</option>
-                </select>
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-sun"></i>
+                        Season
+                    </label>
+                    <select name="season">
+                        <option value="">All</option>
+                        <option value="Summer">Summer</option>
+                        <option value="Fall">Fall</option>
+                        <option value="Winter">Winter</option>
+                        <option value="Spring">Spring</option>
+                    </select>
+                </div>
 
-                <label>Saison :</label>
-                <select name="season">
-                    <option value="">Toutes</option>
-                    <option value="Summer" {% if filters.season == 'Summer' %}selected{% endif %}>Été</option>
-                    <option value="Fall" {% if filters.season == 'Fall' %}selected{% endif %}>Automne</option>
-                    <option value="Winter" {% if filters.season == 'Winter' %}selected{% endif %}>Hiver</option>
-                </select>
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-calendar"></i>
+                        Year
+                    </label>
+                    <select name="year">
+                        <option value="">All</option>
+                        {% for year in range(2011, 2025) %}
+                        <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-                <label>Année :</label>
-                <select name="year">
-                    <option value="">Toutes</option>
-                    {% for year in range(2011, 2025) %}
-                    <option value="{{ year }}" {% if filters.year and filters.year == str(year) %}selected{% endif %}>{{ year }}</option>
-                    {% endfor %}
-                </select>
-
-                <label>Usage :</label>
-                <select name="usage">
-                    <option value="">Tous</option>
-                    <option value="Casual" {% if filters.usage == 'Casual' %}selected{% endif %}>Décontracté</option>
-                    <option value="Party" {% if filters.usage == 'Party' %}selected{% endif %}>Soirée</option>
-                    <option value="Sports" {% if filters.usage == 'Sports' %}selected{% endif %}>Sport</option>
-                </select>
-
-                <button type="submit">Appliquer</button>
-            </form>
-        </div>
-
-        <!-- Liste des produits -->
-        <div class="products">
-            {% for product in products %}
-            <div class="product">
-                <a href="{{ url_for('product_details', product_name=product.productDisplayName) }}">
-                    <img src="{{ url_for('static', filename='data/images/' + product.image) }}" alt="{{ product.productDisplayName }}">
-                    <h3>{{ product.productDisplayName }}</h3>
-                    <p>ID : {{ product.global_id }}</p> <!-- Affiche l'ID global -->
-                    <p>{{ product.articleType }}</p>
-                    <p>{{ product.baseColour }}</p>
-                    <p>Prix : {{ product.price }} €</p>
-                    <p class="rating">Évaluation : {{ product.rating }} ⭐</p>
-                </a>
+                <div class="filter-group">
+                    <label>
+                        <i class="fas fa-tasks"></i>
+                        Usage
+                    </label>
+                    <select name="usage">
+                        <option value="">All</option>
+                            <option value="Casual">Casual</option>
+                            <option value="Formal">Formal</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Party">Party</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>
+                            <i class="fas fa-dollar-sign"></i>
+                            Price Range
+                        </label>
+                        <div class="price-range">
+                            <input type="number" name="maxPrice" placeholder="Max" step="0.01" min="0">
+                        </div>
+                    </div>
+                    
+    
+                    <button type="submit">
+                        <i class="fas fa-filter"></i>
+                        Apply Filters
+                    </button>
+                </form>
             </div>
-            {% endfor %}
+    
+            <div class="products">
+                {% for product in products %}
+                <div class="product" >
+                    <a href="{{ url_for('product_details', product_name=product.productDisplayName) }}">
+                    <img src="{{ url_for('static', filename='data/images/' + product.image) }}" alt="{{ product.productDisplayName }}">
+                    
+                    <div class="product-info">
+                        <h3>{{ product.productDisplayName }}</h3>
+                        <p>{{ product.id }}</p>
+                        <p><i class="fas fa-tag"></i> {{ product.articleType }}</p>
+                        <p><i class="fas fa-palette"></i> {{ product.baseColour }}</p>
+                        <p><i class="fas fa-dollar-sign"></i> {{ product.price }}</p>
+                        
+                        <div class="rating">
+                            {{ product.rating }}
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    </a>
+                </div>
+                {% endfor %}
+    
+                <div class="pagination">
+                    {% if page > 1 %}
+                    <a href="{{ url_for('products', page=page-1) }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">
+                        <i class="fas fa-chevron-left" ></i> Previous
+                    </a>
+                    {% endif %}
+                    <a >
+                    <span>Page {{ page }} of {{ total_pages }}</span>
+                    </a>
+                    {% if page < total_pages %}
+                    <a href="{{ url_for('products', page=page+1) }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
+    
+       
+    
+        <script>
+            // Color selection handling
+let selectedColors = [];
+document.querySelectorAll('.color-circle').forEach(circle => {
+    circle.addEventListener('click', function() {
+        const color = this.dataset.color;
+        const index = selectedColors.indexOf(color);
+        
+        if (index === -1) {
+            selectedColors.push(color);
+            this.classList.add('selected');
+        } else {
+            selectedColors.splice(index, 1);
+            this.classList.remove('selected');
+        }
+        
+        // Met à jour le champ caché avec les couleurs sélectionnées
+        document.getElementById('selectedColors').value = selectedColors.join(',');
+        console.log("Selected Colors:", selectedColors.join(','));
+    });
+});
 
-        <!-- Pagination -->
-        <div class="pagination">
-            {% if page > 1 %}
-            <a href="{{ url_for('products', page=page-1) }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">
-                &laquo; Page précédente
-            </a>
-            {% endif %}
+            document.addEventListener("DOMContentLoaded", () => {
+    const toggleBtn = document.querySelector(".toggle-filters-btn");
+    const filters = document.querySelector(".filters");
 
-            <span>Page {{ page }} sur {{ total_pages }}</span>
+    toggleBtn.addEventListener("click", () => {
+        const isExpanded = toggleBtn.getAttribute("aria-expanded") === "true";
+        toggleBtn.setAttribute("aria-expanded", !isExpanded);
+        filters.classList.toggle("hidden");
+    });
+});
 
-            {% if page < total_pages %}
-            <a href="{{ url_for('products', page=page+1) }}{% for key, value in request.args.items() if key != 'page' %}&{{ key }}={{ value }}{% endfor %}">
-                Page suivante &raquo;
-            </a>
-            {% endif %}
-        </div>
-    </div>
-</body>
-</html>
+            
+        </script>
+    </body>
+    </html>

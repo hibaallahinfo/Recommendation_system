@@ -1,64 +1,288 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Recommandations Personnalisées</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Recommendations - {{ season }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f8f8;
+        :root {
+            --primary-color: #1a1a1a;
+            --accent-color: #c9a77c;
+            --bg-color: #f8f5f2;
+            --text-color: #333;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
         header {
-            background-color: #000;
-            color: #fff;
-            padding: 10px 20px;
-        }
-        .products-container {
-            padding: 20px;
-        }
-        .product-card {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            margin: 10px;
-            display: inline-block;
-            width: 250px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 4rem;
             text-align: center;
-            background-color: #fff;
+            position: relative;
+            overflow: hidden;
         }
-        .product-card h3 {
-            font-size: 1.2rem;
-            color: #333;
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent-color);
         }
-        .product-card p {
-            color: #555;
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin: 0;
         }
+
+        .season-tag {
+            display: inline-block;
+            background-color: var(--accent-color);
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        /* Products Container */
+        .products-container {
+            max-width: 1600px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Product Card */
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container {
+            position: relative;
+            padding-top: 125%;
+            overflow: hidden;
+        }
+
         .product-card img {
-            max-width: 100%;
-            border-radius: 5px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .product-season {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination a, .pagination span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            padding: 0 10px;
+            border-radius: 8px;
+            background: white;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 1px solid #eee;
+        }
+
+        .pagination a:hover {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .pagination .active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .pagination .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Empty State */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1.5rem 1rem;
+            }
+
+            .products-container {
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .pagination {
+                padding: 0 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Recommandations Personnalisées - {{ season }}</h1>
+        <h1>Personal Recommendations</h1>
+        <div class="season-tag">{{ season }}</div>
     </header>
+
     <section class="products-container">
         {% if products %}
             {% for product in products %}
                 <div class="product-card">
-                    <img src="{{ url_for('static', filename='images/' + product['id'] + '.jpg') }}" alt="{{ product['name'] }}">
-                    <h3>{{ product['name'] }}</h3>
-                    <p>Saison : {{ product['season'] }}</p>
-                    <p>Prix : {{ product['price'] }} €</p>
+                    <div class="image-container">
+                        <img src="{{ url_for('static', filename='images/' + product['id'] + '.jpg') }}" 
+                             alt="{{ product['name'] }}">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">{{ product['name'] }}</h3>
+                        <div class="product-meta">
+                            <div class="product-season">
+                                <i class="fas fa-calendar-alt"></i>
+                                {{ product['season'] }}
+                            </div>
+                            <div class="product-price">£{{ product['price'] }}</div>
+                        </div>
+                    </div>
                 </div>
             {% endfor %}
         {% else %}
-            <p>Aucun produit disponible pour la saison actuelle.</p>
+            <div class="empty-state">
+                <i class="fas fa-tshirt"></i>
+                <p>No products available for the current season.</p>
+            </div>
         {% endif %}
     </section>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="{{ url_for('recommendations', page=page-1) }}" aria-label="Previous page">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        {% else %}
+            <span class="disabled">
+                <i class="fas fa-chevron-left"></i>
+            </span>
+        {% endif %}
+
+        {% for p in range(max(1, page-2), min(total_pages+1, page+3)) %}
+            {% if p == page %}
+                <span class="active">{{ p }}</span>
+            {% else %}
+                <a href="{{ url_for('recommendations', page=p) }}">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page < total_pages %}
+            <a href="{{ url_for('recommendations', page=page+1) }}" aria-label="Next page">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        {% else %}
+            <span class="disabled">
+                <i class="fas fa-chevron-right"></i>
+            </span>
+        {% endif %}
+    </div>
 </body>
 </html>
