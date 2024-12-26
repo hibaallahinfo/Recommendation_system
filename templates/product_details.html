@@ -194,6 +194,7 @@
             <a href="{{ url_for('popular_products') }}">Trending</a>
             <a href="{{ url_for('personalisation', user_id=session['user_id']) }}">Personal Style</a>
             <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('profile', user_id=session['user_id']) }}">Profil</a>
             <a href="{{ url_for('logout') }}">Sign Out</a>
             <a></a>
         </nav>

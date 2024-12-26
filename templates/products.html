@@ -377,6 +377,25 @@
         top: unset;
     }
 }
+.star-rating .stars {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.star-rating .stars i {
+    cursor: pointer;
+    color: #d1d5db;
+    transition: color 0.2s ease;
+}
+
+.star-rating .stars i.active {
+    color: #eab308;
+}
+
+.star-rating .stars i:hover,
+.star-rating .stars i:hover ~ i {
+    color: #eab308;
+}
 
     </style>
 </head>
@@ -509,6 +528,20 @@
                         <div class="price-range">
                             <input type="number" name="maxPrice" placeholder="Max" step="0.01" min="0">
                         </div>
+                        <label>
+                            <i class="fas fa-star"></i>
+                            Minimum Rating
+                        </label>
+                        <div class="star-rating">
+                            <input type="hidden" name="rating" id="ratingInput" value="">
+                            <div class="stars">
+                                <i class="fas fa-star" data-rating="1"></i>
+                                <i class="fas fa-star" data-rating="2"></i>
+                                <i class="fas fa-star" data-rating="3"></i>
+                                <i class="fas fa-star" data-rating="4"></i>
+                                <i class="fas fa-star" data-rating="5"></i>
+                            </div>
+                        </div>
                     </div>
                     
     
@@ -593,7 +626,39 @@ document.querySelectorAll('.color-circle').forEach(circle => {
         filters.classList.toggle("hidden");
     });
 });
+// Star rating handling
+const stars = document.querySelectorAll('.star-rating .stars i');
+const ratingInput = document.getElementById('ratingInput');
 
+stars.forEach(star => {
+    star.addEventListener('click', function() {
+        const rating = this.dataset.rating;
+        ratingInput.value = rating;
+        
+        // Update visual state
+        stars.forEach(s => {
+            if (s.dataset.rating <= rating) {
+                s.classList.add('active');
+            } else {
+                s.classList.remove('active');
+            }
+        });
+    });
+});
+
+// Optional: Initialize stars based on URL parameter
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const rating = urlParams.get('rating');
+    if (rating) {
+        ratingInput.value = rating;
+        stars.forEach(star => {
+            if (star.dataset.rating <= rating) {
+                star.classList.add('active');
+            }
+        });
+    }
+});
             
         </script>
     </body>

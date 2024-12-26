@@ -7,6 +7,7 @@ import bcrypt
 from recommender import find_enhanced_similar_items, build_enhanced_graph ,compute_enhanced_attention ,propagate_enhanced_information , img_path, model  # Import des fonctions
 from popularity_recommender import PopularityRecommender
 from datetime import datetime
+import re
 
 app = Flask(__name__)
 app.secret_key = "votre_clé_secrète"
@@ -91,8 +92,13 @@ def products():
         'usage': request.args.get('usage'),
     }
 
+    # Récupérer la notation minimale sélectionnée
+    min_rating = request.args.get('rating')
+    if min_rating:
+        min_rating = float(min_rating)
+
     # Récupérer les couleurs sélectionnées
-    selected_colors = request.args.get('selectedColors', '')  # Une chaîne séparée par des virgules
+    selected_colors = request.args.get('selectedColors', '')
     selected_colors = selected_colors.split(',') if selected_colors else []
 
     # Récupérer les plages de prix
@@ -119,6 +125,10 @@ def products():
         df = df[df['price'] >= float(min_price)]
     if max_price:
         df = df[df['price'] <= float(max_price)]
+
+    # Filtrer par notation
+    if min_rating:
+        df = df[df['rating'] >= min_rating]
 
     # Pagination
     page = int(request.args.get('page', 1))
@@ -209,39 +219,48 @@ import bcrypt
 
 @app.route("/", methods=["GET", "POST"])
 def login():
-    try:
-        users_df = pd.read_csv(USER_FILE)
-        print("Données utilisateurs chargées :", users_df.head())
-    except FileNotFoundError:
+    # Charger les utilisateurs depuis le fichier CSV
+    if not os.path.exists(USER_FILE):
         print("Fichier utilisateur introuvable.")
-        return redirect(url_for('login'))
+        flash("Le fichier utilisateur est introuvable. Veuillez contacter l'administrateur.", "error")
+        return render_template("login.html")
+
+    users_df = pd.read_csv(USER_FILE)
+    print("Données utilisateurs chargées :", users_df.head())
 
     if request.method == "POST":
         email = request.form.get('email')
         password = request.form.get('password')
 
+        # Vérifier les champs
+        if not email or not password:
+            flash("Veuillez remplir tous les champs.", "error")
+            return render_template("login.html")
+
         print(f"Email saisi : {email}")
         print(f"Mot de passe saisi : {password}")
 
-        # Rechercher l'utilisateur
-        user = users_df[users_df['email'].str.lower() == email.lower()].reset_index()
-        print("Utilisateur trouvé :", user)
-
+        # Rechercher l'utilisateur par email
+        user = users_df[users_df['email'].str.lower() == email.lower()]
         if not user.empty:
-            hashed_password = user.loc[0, 'password']
+            user = user.iloc[0]  # Récupérer la première correspondance
+            hashed_password = user['password']
+
             # Vérifier le mot de passe
             if bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):
-                session['user_id'] = int(user.loc[0, 'id'])
-                session['user_name'] = user.loc[0, 'fullname']
+                session['user_id'] = int(user['id'])
+                session['user_name'] = user['fullname']
                 print("Connexion réussie.")
-                return redirect(url_for('dashboard'))
+                flash("Connexion réussie ! Bienvenue, " + session['user_name'], "success")
+                return redirect(url_for('dashboard'))  # Redirection vers le tableau de bord
             else:
                 print("Mot de passe incorrect.")
+                flash("Mot de passe incorrect. Veuillez réessayer.", "error")
         else:
             print("Utilisateur non trouvé.")
+            flash("Adresse email introuvable. Veuillez vérifier vos informations.", "error")
 
     return render_template("login.html")
-
 
 
 
@@ -460,6 +479,76 @@ def cart():
     # Retourner la page du panier avec les produits et le prix total
     return render_template('cart.html', cart_products=cart_products, total_price=total_price)
 
+# Define color mappings
+COLORS = {
+    'red': '#FF0000',
+    'blue': '#0000FF',
+    'green': '#00FF00',
+    'yellow': '#FFD700',
+    'purple': '#800080',
+    'pink': '#FFC0CB',
+    'black': '#000000',
+    'white': '#FFFFFF',
+    'gray': '#808080',
+    'brown': '#A52A2A',
+    'orange': '#FFA500',
+    'navy': '#000080'
+}
+
+@app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
+def profile(user_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    if session['user_id'] != user_id:
+        flash('Unauthorized access', 'error')
+        return redirect(url_for('dashboard'))
+
+    # Read user data
+    df = pd.read_csv(USER_FILE)
+    user = df[df['id'] == user_id].iloc[0].to_dict()
+
+    if request.method == 'POST':
+        # Validate email format
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", request.form['email']):
+            flash('Invalid email format', 'error')
+            return render_template('profile.html', user=user, colors=COLORS)
+
+        # Validate date of birth
+        try:
+            dob = datetime.strptime(request.form['dob'], '%Y-%m-%d')
+            if dob > datetime.now():
+                flash('Invalid date of birth', 'error')
+                return render_template('profile.html', user=user, colors=COLORS)
+        except ValueError:
+            flash('Invalid date format', 'error')
+            return render_template('profile.html', user=user, colors=COLORS)
+
+        # Get favorite colors
+        favorite_colors = request.form.getlist('favorite_colors[]')
+        if not favorite_colors:
+            flash('Please select at least one favorite color', 'error')
+            return render_template('profile.html', user=user, colors=COLORS)
+
+        # Update user data
+        df.loc[df['id'] == user_id, 'fullname'] = request.form['fullname']
+        df.loc[df['id'] == user_id, 'dob'] = request.form['dob']
+        df.loc[df['id'] == user_id, 'gender'] = request.form['gender']
+        df.loc[df['id'] == user_id, 'email'] = request.form['email']
+        df.loc[df['id'] == user_id, 'favorite_colors'] = ', '.join(favorite_colors)
+        df.loc[df['id'] == user_id, 'favorite_category'] = request.form['favorite_category']
+
+        # Save to CSV
+        try:
+            df.to_csv(USER_FILE, index=False)
+            flash('Profile updated successfully', 'success')
+        except Exception as e:
+            flash('Error updating profile', 'error')
+            return render_template('profile.html', user=user, colors=COLORS)
+
+        return redirect(url_for('profile', user_id=user_id))
+
+    return render_template('profile.html', user=user, colors=COLORS)
 
 if __name__ == "__main__":
     app.run(debug=True)
