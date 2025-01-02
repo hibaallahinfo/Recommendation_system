@@ -297,32 +297,6 @@ def dashboard():
     return render_template("dashboard.html", user_id=user_id, user_name=user_name)
 
 
-
-@app.route('/product_json/<string:product_name>')
-def product_json_by_name(product_name):
-    """
-    Renvoie les détails du produit et ses produits similaires au format JSON 
-    en utilisant productDisplayName.
-    """
-    # Recherche de l'index correspondant au productDisplayName
-    product_row = df[df['productDisplayName'] == product_name]
-    
-    if product_row.empty:
-        return jsonify({"error": "Produit non trouvé"}), 404
-    
-    product_index = product_row.index[0]
-    target_embedding = embeddings[product_index].reshape(1, -1)
-    similar_indices, _ = find_top_similar_items(product_index, embeddings, top_n=10)
-    
-    product = product_row.iloc[0].to_dict()
-    similar_products = df.iloc[similar_indices].to_dict(orient='records')
-    
-    return jsonify({
-        'product': product,
-        'similar_products': similar_products
-    })
-
-
 #print("Taille des embeddings:", embeddings.shape)
 
 @app.route('/popular', methods=['GET'])
