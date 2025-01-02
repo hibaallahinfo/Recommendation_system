@@ -1,8 +1,9 @@
 id,fullname,dob,gender,email,password,favorite_colors,favorite_category
-0,user,2003-05-13,Male,user@gmail.com,$2b$12$JOmImah9xOgRn9l6GtMz8ebrNyLlowGfLdr5vM.m/KrYkqTjjVNdy,"red, blue, yellow, pink, white, gray",Footwear
+0,user,2003-05-13,Male,user@gmail.com,$2b$12$JOmImah9xOgRn9l6GtMz8ebrNyLlowGfLdr5vM.m/KrYkqTjjVNdy,"red, green, yellow, pink, white, gray",Footwear
 1,hibaa,2003-12-12,Male,hiba@gmail.com,$2b$12$pBVGA4e0NsN/0kBtxypl/OfVbyGTVLuG.aZ5FNfTMfvWtuK..qtVC,"blue, white",Footwear
 2,salma,2002-03-12,Male,salma@gmail.com,$2b$12$JgIj6q7nXra3jyi7XbtdoODnbGCuvb77QjObtj/Y0s25x0eVAq9Ke,"blue, yellow, white",Accessories
 3,imane,2004-02-11,Women,imane@gmail.com,$2b$12$84.YDgcaMBlpz8noV32Z.ORlu4v0ShPLXqA7sQrjAi9YgNufLATD6,"red, yellow",Apparel
 4,hiba2,2002-11-11,Women,hibaallah703@gmail.com,$2b$12$Wi7YbPDSdM9T0BdcC6b8M.ImimXSt79ewq9p4.Qs5QF6fmKGFEoTK,"red, grey",Apparel
 5,amin,2002-12-12,Men,amin@gmail.com,$2b$12$G5ot1ehLS9MyD1MMUHUjoOBXQheV2fCytx5UqZVRYNtWrEfR.os5i,"blue, black",Apparel
 6,alex,2002-02-10,Men,alex@gmail.com,$2b$12$N9CtHrWu2Ugp5OMqpzCRMuEKdF8.LtvPlU/93q9WRayPgjsc/gPoG,"grey, yellow, white",Accessories
+7,user2@gmail.com,2003-12-12,Men,user2@gmail.com,$2b$12$ID2inYGlDoXDgGg.vrdX0u.NzjTX.eRnYKArKrVqq7E.AYDbalfoG,"blue, grey",Footwear

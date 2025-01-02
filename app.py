@@ -156,52 +156,70 @@ from flask import session
 
 @app.route('/product_details/<string:product_name>', methods=['GET', 'POST'])
 def product_details(product_name):
-    formatted_product_name = product_name.replace('%20', ' ').title()
-    product_row = df[df['productDisplayName'].str.lower() == formatted_product_name.lower()]
-    
-    if product_row.empty:
-        return jsonify({"error": "Produit non trouvé"}), 404
-    
-    product_index = product_row.index[0]
-    embeddings = np.load(EMBEDDINGS_FILE)
-    
-    # Construire le graphe avec les embeddings
-    graph, similarities = build_enhanced_graph(embeddings, min_threshold=0.90, max_neighbors=10)
-    
-    # Calculer les poids d'attention
-    attention_weights = compute_enhanced_attention(graph, embeddings, similarities, temperature=0.5)
-    
-    # Propagation des informations dans le graphe
-    updated_embeddings = propagate_enhanced_information(graph, embeddings, attention_weights, num_iterations=3, decay_factor=0.9)
-    
-    # Recherche des indices similaires avec le graphe amélioré
-    similar_indices, weights = find_enhanced_similar_items(
-        product_index, updated_embeddings, similarities, 
-        top_n=10, 
-        similarity_threshold=0.4
-    )
-    
-    # Récupération des produits similaires
-    similar_products = df.iloc[similar_indices].to_dict(orient='records')
-    
-    # Récupérer le produit actuel
-    product = product_row.iloc[0].to_dict()
+    try:
+        # Formatage du nom du produit pour correspondre au DataFrame
+        formatted_product_name = product_name.replace('%20', ' ').title()
+        product_row = df[df['productDisplayName'].str.lower() == formatted_product_name.lower()]
 
-    # Traitement de l'ajout au panier (méthode POST)
-    if request.method == 'POST':
-        # Ajouter le produit au panier dans la session
-        if 'cart' not in session:
-            session['cart'] = []  # Créer un panier s'il n'existe pas
-        product_id = product['id']
-        
-        # Ajouter le produit au panier
-        session['cart'].append(product_id)
-        
-        # Optionnel : Afficher un message de succès
-        print('Produit ajouté au panier !', 'success')
-    
-    # Retourner la page avec les produits similaires et l'état du panier
-    return render_template('product_details.html', product=product, similar_products=similar_products)
+        # Vérification si le produit existe
+        if product_row.empty:
+            raise ValueError("Produit non trouvé")
+
+        # Récupération de l'index du produit
+        product_index = product_row.index[0]
+
+        # Charger les embeddings
+        embeddings = np.load(EMBEDDINGS_FILE)
+
+        # Construire le graphe avec les embeddings
+        graph, similarities = build_enhanced_graph(embeddings, min_threshold=0.90, max_neighbors=10)
+
+        # Calculer les poids d'attention
+        attention_weights = compute_enhanced_attention(graph, embeddings, similarities, temperature=0.5)
+
+        # Propagation des informations dans le graphe
+        updated_embeddings = propagate_enhanced_information(graph, embeddings, attention_weights, num_iterations=3, decay_factor=0.9)
+
+        # Recherche des indices similaires avec le graphe amélioré
+        similar_indices, weights = find_enhanced_similar_items(
+            product_index, updated_embeddings, similarities, 
+            top_n=10, 
+            similarity_threshold=0.4
+        )
+
+        # Récupération des produits similaires
+        similar_products = df.iloc[similar_indices].to_dict(orient='records')
+
+        # Récupérer le produit actuel
+        product = product_row.iloc[0].to_dict()
+
+        # Traitement de l'ajout au panier (méthode POST)
+        if request.method == 'POST':
+            if 'cart' not in session:
+                session['cart'] = []  # Créer un panier s'il n'existe pas
+            product_id = product['id']
+
+            # Ajouter le produit au panier
+            session['cart'].append(product_id)
+
+        # Retourner la page avec les produits similaires et l'état du panier
+        return render_template('product_details.html', product=product, similar_products=similar_products)
+
+    except ValueError as ve:
+        # Gérer le cas où le produit n'est pas trouvé
+        flash(f"Erreur : {str(ve)}", "danger")
+        return render_template('not_found_page.html'), 404
+
+    except IndexError as ie:
+        # Gérer les erreurs d'indice
+        flash(f"Erreur d'indice : {str(ie)}", "danger")
+        return render_template('not_found_page.html'), 304
+
+    except Exception as e:
+        # Gérer les autres erreurs inattendues
+        flash(f"Une erreur inattendue est survenue : {str(e)}", "danger")
+        return render_template('not_found_page.html'), 500
+
 
 
 
