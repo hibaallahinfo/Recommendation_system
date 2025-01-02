@@ -8,8 +8,6 @@ If you prefer a dataset with clearer images, you can use an alternative dataset.
 
 **Link to the dataset:** [Fashion Emb Final Dataset](https://www.kaggle.com/datasets/salmalaamari/fashion-emb-final-dataset)
 
-Here’s a concise description for your README file:
-
 
 This project implements a fashion recommendation system using Flask as framework. The system incorporates the following features and techniques:
 
